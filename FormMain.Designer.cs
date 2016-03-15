@@ -1,6 +1,6 @@
 ﻿namespace ZigbeeVoice
 {
-    partial class Form1
+    partial class FormMain
     {
         /// <summary>
         /// 必需的设计器变量。
@@ -28,7 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormMain));
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.labelSingal = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
@@ -320,7 +320,7 @@
             this.checkBoxAutoPlay.Name = "checkBoxAutoPlay";
             this.checkBoxAutoPlay.Size = new System.Drawing.Size(144, 16);
             this.checkBoxAutoPlay.TabIndex = 2;
-            this.checkBoxAutoPlay.Text = "自动播放接受到的语音";
+            this.checkBoxAutoPlay.Text = "自动播放接收到的语音";
             this.checkBoxAutoPlay.UseVisualStyleBackColor = true;
             // 
             // checkBoxSaveVoice
@@ -519,7 +519,7 @@
             this.buttonPlaySelf.Text = "试听";
             this.buttonPlaySelf.UseVisualStyleBackColor = true;
             // 
-            // Form1
+            // FormMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -532,7 +532,7 @@
             this.Controls.Add(this.groupBox1);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
-            this.Name = "Form1";
+            this.Name = "FormMain";
             this.Text = "矿井无线语音通信管理系统";
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
