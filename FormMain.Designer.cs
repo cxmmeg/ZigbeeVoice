@@ -39,6 +39,13 @@
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.listBoxLog = new System.Windows.Forms.ListBox();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
+            this.buttonPlaySelf = new System.Windows.Forms.Button();
+            this.buttonCancel = new System.Windows.Forms.Button();
+            this.buttonSend = new System.Windows.Forms.Button();
+            this.buttonRecord = new System.Windows.Forms.Button();
+            this.labelSelectNum = new System.Windows.Forms.Label();
+            this.label7 = new System.Windows.Forms.Label();
+            this.label6 = new System.Windows.Forms.Label();
             this.groupBox9 = new System.Windows.Forms.GroupBox();
             this.trackBarVoiceValueSelf = new System.Windows.Forms.TrackBar();
             this.groupBox10 = new System.Windows.Forms.GroupBox();
@@ -46,6 +53,9 @@
             this.buttonPlaySent = new System.Windows.Forms.Button();
             this.listBoxVoiceSend = new System.Windows.Forms.ListBox();
             this.groupBox5 = new System.Windows.Forms.GroupBox();
+            this.labelVoiceFrom = new System.Windows.Forms.Label();
+            this.labelVoiceTime = new System.Windows.Forms.Label();
+            this.labelVoiceNo = new System.Windows.Forms.Label();
             this.trackBarTime = new System.Windows.Forms.TrackBar();
             this.label5 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
@@ -61,16 +71,6 @@
             this.listBoxVoice = new System.Windows.Forms.ListBox();
             this.groupBox6 = new System.Windows.Forms.GroupBox();
             this.textBoxLog = new System.Windows.Forms.TextBox();
-            this.label6 = new System.Windows.Forms.Label();
-            this.label7 = new System.Windows.Forms.Label();
-            this.labelVoiceNo = new System.Windows.Forms.Label();
-            this.labelVoiceTime = new System.Windows.Forms.Label();
-            this.labelVoiceFrom = new System.Windows.Forms.Label();
-            this.labelSelectNum = new System.Windows.Forms.Label();
-            this.buttonRecord = new System.Windows.Forms.Button();
-            this.buttonSend = new System.Windows.Forms.Button();
-            this.buttonCancel = new System.Windows.Forms.Button();
-            this.buttonPlaySelf = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -196,6 +196,69 @@
             this.groupBox4.TabStop = false;
             this.groupBox4.Text = "语音发送";
             // 
+            // buttonPlaySelf
+            // 
+            this.buttonPlaySelf.Location = new System.Drawing.Point(8, 130);
+            this.buttonPlaySelf.Name = "buttonPlaySelf";
+            this.buttonPlaySelf.Size = new System.Drawing.Size(86, 23);
+            this.buttonPlaySelf.TabIndex = 18;
+            this.buttonPlaySelf.Text = "试听";
+            this.buttonPlaySelf.UseVisualStyleBackColor = true;
+            // 
+            // buttonCancel
+            // 
+            this.buttonCancel.Location = new System.Drawing.Point(100, 130);
+            this.buttonCancel.Name = "buttonCancel";
+            this.buttonCancel.Size = new System.Drawing.Size(45, 23);
+            this.buttonCancel.TabIndex = 17;
+            this.buttonCancel.Text = "清除";
+            this.buttonCancel.UseVisualStyleBackColor = true;
+            // 
+            // buttonSend
+            // 
+            this.buttonSend.Location = new System.Drawing.Point(8, 88);
+            this.buttonSend.Name = "buttonSend";
+            this.buttonSend.Size = new System.Drawing.Size(137, 36);
+            this.buttonSend.TabIndex = 16;
+            this.buttonSend.Text = "发送";
+            this.buttonSend.UseVisualStyleBackColor = true;
+            // 
+            // buttonRecord
+            // 
+            this.buttonRecord.Location = new System.Drawing.Point(8, 52);
+            this.buttonRecord.Name = "buttonRecord";
+            this.buttonRecord.Size = new System.Drawing.Size(137, 35);
+            this.buttonRecord.TabIndex = 15;
+            this.buttonRecord.Text = "录音";
+            this.buttonRecord.UseVisualStyleBackColor = true;
+            // 
+            // labelSelectNum
+            // 
+            this.labelSelectNum.AutoSize = true;
+            this.labelSelectNum.Location = new System.Drawing.Point(108, 34);
+            this.labelSelectNum.Name = "labelSelectNum";
+            this.labelSelectNum.Size = new System.Drawing.Size(11, 12);
+            this.labelSelectNum.TabIndex = 14;
+            this.labelSelectNum.Text = "0";
+            // 
+            // label7
+            // 
+            this.label7.AutoSize = true;
+            this.label7.Location = new System.Drawing.Point(6, 34);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(101, 12);
+            this.label7.TabIndex = 13;
+            this.label7.Text = "已选择的设备数：";
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(6, 17);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(137, 12);
+            this.label6.TabIndex = 12;
+            this.label6.Text = "在设备列表选择目标设备";
+            // 
             // groupBox9
             // 
             this.groupBox9.Controls.Add(this.trackBarVoiceValueSelf);
@@ -274,6 +337,33 @@
             this.groupBox5.TabIndex = 3;
             this.groupBox5.TabStop = false;
             this.groupBox5.Text = "语音接收";
+            // 
+            // labelVoiceFrom
+            // 
+            this.labelVoiceFrom.AutoSize = true;
+            this.labelVoiceFrom.Location = new System.Drawing.Point(61, 60);
+            this.labelVoiceFrom.Name = "labelVoiceFrom";
+            this.labelVoiceFrom.Size = new System.Drawing.Size(17, 12);
+            this.labelVoiceFrom.TabIndex = 16;
+            this.labelVoiceFrom.Text = "  ";
+            // 
+            // labelVoiceTime
+            // 
+            this.labelVoiceTime.AutoSize = true;
+            this.labelVoiceTime.Location = new System.Drawing.Point(63, 41);
+            this.labelVoiceTime.Name = "labelVoiceTime";
+            this.labelVoiceTime.Size = new System.Drawing.Size(17, 12);
+            this.labelVoiceTime.TabIndex = 15;
+            this.labelVoiceTime.Text = "  ";
+            // 
+            // labelVoiceNo
+            // 
+            this.labelVoiceNo.AutoSize = true;
+            this.labelVoiceNo.Location = new System.Drawing.Point(62, 23);
+            this.labelVoiceNo.Name = "labelVoiceNo";
+            this.labelVoiceNo.Size = new System.Drawing.Size(17, 12);
+            this.labelVoiceNo.TabIndex = 14;
+            this.labelVoiceNo.Text = "  ";
             // 
             // trackBarTime
             // 
@@ -429,96 +519,6 @@
             this.textBoxLog.TabIndex = 0;
             this.textBoxLog.TabStop = false;
             // 
-            // label6
-            // 
-            this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(6, 17);
-            this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(137, 12);
-            this.label6.TabIndex = 12;
-            this.label6.Text = "在设备列表选择目标设备";
-            // 
-            // label7
-            // 
-            this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(6, 34);
-            this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(101, 12);
-            this.label7.TabIndex = 13;
-            this.label7.Text = "已选择的设备数：";
-            // 
-            // labelVoiceNo
-            // 
-            this.labelVoiceNo.AutoSize = true;
-            this.labelVoiceNo.Location = new System.Drawing.Point(62, 23);
-            this.labelVoiceNo.Name = "labelVoiceNo";
-            this.labelVoiceNo.Size = new System.Drawing.Size(17, 12);
-            this.labelVoiceNo.TabIndex = 14;
-            this.labelVoiceNo.Text = "  ";
-            // 
-            // labelVoiceTime
-            // 
-            this.labelVoiceTime.AutoSize = true;
-            this.labelVoiceTime.Location = new System.Drawing.Point(63, 41);
-            this.labelVoiceTime.Name = "labelVoiceTime";
-            this.labelVoiceTime.Size = new System.Drawing.Size(17, 12);
-            this.labelVoiceTime.TabIndex = 15;
-            this.labelVoiceTime.Text = "  ";
-            // 
-            // labelVoiceFrom
-            // 
-            this.labelVoiceFrom.AutoSize = true;
-            this.labelVoiceFrom.Location = new System.Drawing.Point(61, 60);
-            this.labelVoiceFrom.Name = "labelVoiceFrom";
-            this.labelVoiceFrom.Size = new System.Drawing.Size(17, 12);
-            this.labelVoiceFrom.TabIndex = 16;
-            this.labelVoiceFrom.Text = "  ";
-            // 
-            // labelSelectNum
-            // 
-            this.labelSelectNum.AutoSize = true;
-            this.labelSelectNum.Location = new System.Drawing.Point(108, 34);
-            this.labelSelectNum.Name = "labelSelectNum";
-            this.labelSelectNum.Size = new System.Drawing.Size(11, 12);
-            this.labelSelectNum.TabIndex = 14;
-            this.labelSelectNum.Text = "0";
-            // 
-            // buttonRecord
-            // 
-            this.buttonRecord.Location = new System.Drawing.Point(8, 52);
-            this.buttonRecord.Name = "buttonRecord";
-            this.buttonRecord.Size = new System.Drawing.Size(137, 35);
-            this.buttonRecord.TabIndex = 15;
-            this.buttonRecord.Text = "录音";
-            this.buttonRecord.UseVisualStyleBackColor = true;
-            // 
-            // buttonSend
-            // 
-            this.buttonSend.Location = new System.Drawing.Point(8, 88);
-            this.buttonSend.Name = "buttonSend";
-            this.buttonSend.Size = new System.Drawing.Size(137, 36);
-            this.buttonSend.TabIndex = 16;
-            this.buttonSend.Text = "发送";
-            this.buttonSend.UseVisualStyleBackColor = true;
-            // 
-            // buttonCancel
-            // 
-            this.buttonCancel.Location = new System.Drawing.Point(100, 130);
-            this.buttonCancel.Name = "buttonCancel";
-            this.buttonCancel.Size = new System.Drawing.Size(45, 23);
-            this.buttonCancel.TabIndex = 17;
-            this.buttonCancel.Text = "清除";
-            this.buttonCancel.UseVisualStyleBackColor = true;
-            // 
-            // buttonPlaySelf
-            // 
-            this.buttonPlaySelf.Location = new System.Drawing.Point(8, 130);
-            this.buttonPlaySelf.Name = "buttonPlaySelf";
-            this.buttonPlaySelf.Size = new System.Drawing.Size(86, 23);
-            this.buttonPlaySelf.TabIndex = 18;
-            this.buttonPlaySelf.Text = "试听";
-            this.buttonPlaySelf.UseVisualStyleBackColor = true;
-            // 
             // FormMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -533,7 +533,7 @@
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
             this.Name = "FormMain";
-            this.Text = "矿井无线语音通信管理系统";
+            this.Text = " ";
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
             this.groupBox2.ResumeLayout(false);
