@@ -16,5 +16,14 @@ namespace ZigbeeVoice
         {
             InitializeComponent();
         }
+
+        private void buttonSend_MouseDown(object sender, EventArgs e)
+        {
+
+        }
+        private void buttonSend_MouseUp(object sender, EventArgs e)
+        {
+
+        }
     }
 }

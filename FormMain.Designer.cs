@@ -39,10 +39,9 @@
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.listBoxLog = new System.Windows.Forms.ListBox();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
-            this.buttonPlaySelf = new System.Windows.Forms.Button();
-            this.buttonCancel = new System.Windows.Forms.Button();
+            this.checkBoxAutoSend = new System.Windows.Forms.CheckBox();
+            this.checkBoxListenSelf = new System.Windows.Forms.CheckBox();
             this.buttonSend = new System.Windows.Forms.Button();
-            this.buttonRecord = new System.Windows.Forms.Button();
             this.labelSelectNum = new System.Windows.Forms.Label();
             this.label7 = new System.Windows.Forms.Label();
             this.label6 = new System.Windows.Forms.Label();
@@ -71,6 +70,8 @@
             this.listBoxVoice = new System.Windows.Forms.ListBox();
             this.groupBox6 = new System.Windows.Forms.GroupBox();
             this.textBoxLog = new System.Windows.Forms.TextBox();
+            this.label8 = new System.Windows.Forms.Label();
+            this.comboBox1 = new System.Windows.Forms.ComboBox();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -88,6 +89,8 @@
             // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add(this.comboBox1);
+            this.groupBox1.Controls.Add(this.label8);
             this.groupBox1.Controls.Add(this.labelSingal);
             this.groupBox1.Controls.Add(this.label2);
             this.groupBox1.Controls.Add(this.labelStatu);
@@ -180,10 +183,9 @@
             // 
             // groupBox4
             // 
-            this.groupBox4.Controls.Add(this.buttonPlaySelf);
-            this.groupBox4.Controls.Add(this.buttonCancel);
+            this.groupBox4.Controls.Add(this.checkBoxAutoSend);
+            this.groupBox4.Controls.Add(this.checkBoxListenSelf);
             this.groupBox4.Controls.Add(this.buttonSend);
-            this.groupBox4.Controls.Add(this.buttonRecord);
             this.groupBox4.Controls.Add(this.labelSelectNum);
             this.groupBox4.Controls.Add(this.label7);
             this.groupBox4.Controls.Add(this.label6);
@@ -196,41 +198,36 @@
             this.groupBox4.TabStop = false;
             this.groupBox4.Text = "语音发送";
             // 
-            // buttonPlaySelf
+            // checkBoxAutoSend
             // 
-            this.buttonPlaySelf.Location = new System.Drawing.Point(8, 130);
-            this.buttonPlaySelf.Name = "buttonPlaySelf";
-            this.buttonPlaySelf.Size = new System.Drawing.Size(86, 23);
-            this.buttonPlaySelf.TabIndex = 18;
-            this.buttonPlaySelf.Text = "试听";
-            this.buttonPlaySelf.UseVisualStyleBackColor = true;
+            this.checkBoxAutoSend.AutoSize = true;
+            this.checkBoxAutoSend.Location = new System.Drawing.Point(63, 135);
+            this.checkBoxAutoSend.Name = "checkBoxAutoSend";
+            this.checkBoxAutoSend.Size = new System.Drawing.Size(72, 16);
+            this.checkBoxAutoSend.TabIndex = 18;
+            this.checkBoxAutoSend.Text = "自动发送";
+            this.checkBoxAutoSend.UseVisualStyleBackColor = true;
             // 
-            // buttonCancel
+            // checkBoxListenSelf
             // 
-            this.buttonCancel.Location = new System.Drawing.Point(100, 130);
-            this.buttonCancel.Name = "buttonCancel";
-            this.buttonCancel.Size = new System.Drawing.Size(45, 23);
-            this.buttonCancel.TabIndex = 17;
-            this.buttonCancel.Text = "清除";
-            this.buttonCancel.UseVisualStyleBackColor = true;
+            this.checkBoxListenSelf.AutoSize = true;
+            this.checkBoxListenSelf.Location = new System.Drawing.Point(13, 135);
+            this.checkBoxListenSelf.Name = "checkBoxListenSelf";
+            this.checkBoxListenSelf.Size = new System.Drawing.Size(48, 16);
+            this.checkBoxListenSelf.TabIndex = 17;
+            this.checkBoxListenSelf.Text = "试听";
+            this.checkBoxListenSelf.UseVisualStyleBackColor = true;
             // 
             // buttonSend
             // 
-            this.buttonSend.Location = new System.Drawing.Point(8, 88);
+            this.buttonSend.Location = new System.Drawing.Point(8, 49);
             this.buttonSend.Name = "buttonSend";
-            this.buttonSend.Size = new System.Drawing.Size(137, 36);
+            this.buttonSend.Size = new System.Drawing.Size(137, 75);
             this.buttonSend.TabIndex = 16;
-            this.buttonSend.Text = "发送";
+            this.buttonSend.Text = "按下发送";
             this.buttonSend.UseVisualStyleBackColor = true;
-            // 
-            // buttonRecord
-            // 
-            this.buttonRecord.Location = new System.Drawing.Point(8, 52);
-            this.buttonRecord.Name = "buttonRecord";
-            this.buttonRecord.Size = new System.Drawing.Size(137, 35);
-            this.buttonRecord.TabIndex = 15;
-            this.buttonRecord.Text = "录音";
-            this.buttonRecord.UseVisualStyleBackColor = true;
+            this.buttonSend.MouseDown += new System.Windows.Forms.MouseEventHandler(this.buttonSend_MouseDown);
+            this.buttonSend.MouseUp += new System.Windows.Forms.MouseEventHandler(this.buttonSend_MouseUp);
             // 
             // labelSelectNum
             // 
@@ -519,6 +516,57 @@
             this.textBoxLog.TabIndex = 0;
             this.textBoxLog.TabStop = false;
             // 
+            // label8
+            // 
+            this.label8.AutoSize = true;
+            this.label8.Font = new System.Drawing.Font("宋体", 10F);
+            this.label8.Location = new System.Drawing.Point(115, 26);
+            this.label8.Name = "label8";
+            this.label8.Size = new System.Drawing.Size(28, 14);
+            this.label8.TabIndex = 1;
+            this.label8.Text = "COM";
+            // 
+            // comboBox1
+            // 
+            this.comboBox1.FormattingEnabled = true;
+            this.comboBox1.Items.AddRange(new object[] {
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6",
+            "7",
+            "8",
+            "9",
+            "10",
+            "11",
+            "12",
+            "13",
+            "14",
+            "15",
+            "16",
+            "17",
+            "18",
+            "19",
+            "20",
+            "21",
+            "22",
+            "23",
+            "24",
+            "25",
+            "26",
+            "27",
+            "28",
+            "29",
+            "30",
+            "31",
+            "32"});
+            this.comboBox1.Location = new System.Drawing.Point(144, 23);
+            this.comboBox1.Name = "comboBox1";
+            this.comboBox1.Size = new System.Drawing.Size(41, 20);
+            this.comboBox1.TabIndex = 4;
+            // 
             // FormMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -597,10 +645,11 @@
         private System.Windows.Forms.Label labelVoiceTime;
         private System.Windows.Forms.Label labelVoiceNo;
         private System.Windows.Forms.Label labelSelectNum;
-        private System.Windows.Forms.Button buttonPlaySelf;
-        private System.Windows.Forms.Button buttonCancel;
         private System.Windows.Forms.Button buttonSend;
-        private System.Windows.Forms.Button buttonRecord;
+        private System.Windows.Forms.CheckBox checkBoxAutoSend;
+        private System.Windows.Forms.CheckBox checkBoxListenSelf;
+        private System.Windows.Forms.ComboBox comboBox1;
+        private System.Windows.Forms.Label label8;
     }
 }
 
