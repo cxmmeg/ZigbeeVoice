@@ -49,8 +49,4 @@ Temporary Items
 *.exe
 
 bin/
-bin/DeBug/
 obj/
-obj/DeBug/
-debug/
-obj/Debug/ZigbeeVoice.exe
