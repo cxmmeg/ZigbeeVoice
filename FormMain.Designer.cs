@@ -30,6 +30,8 @@
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormMain));
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.comboBox1 = new System.Windows.Forms.ComboBox();
+            this.label8 = new System.Windows.Forms.Label();
             this.labelSingal = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.labelStatu = new System.Windows.Forms.Label();
@@ -46,7 +48,7 @@
             this.label7 = new System.Windows.Forms.Label();
             this.label6 = new System.Windows.Forms.Label();
             this.groupBox9 = new System.Windows.Forms.GroupBox();
-            this.trackBarVoiceValueSelf = new System.Windows.Forms.TrackBar();
+            this.trackBarVoiceVolumeSelf = new System.Windows.Forms.TrackBar();
             this.groupBox10 = new System.Windows.Forms.GroupBox();
             this.buttonDeleteSent = new System.Windows.Forms.Button();
             this.buttonPlaySent = new System.Windows.Forms.Button();
@@ -63,26 +65,24 @@
             this.checkBoxSaveVoice = new System.Windows.Forms.CheckBox();
             this.groupBox8 = new System.Windows.Forms.GroupBox();
             this.checkBoxSlience = new System.Windows.Forms.CheckBox();
-            this.trackBarVoiceValue = new System.Windows.Forms.TrackBar();
+            this.trackBarVoiceVolume = new System.Windows.Forms.TrackBar();
             this.groupBox7 = new System.Windows.Forms.GroupBox();
             this.buttonDelete = new System.Windows.Forms.Button();
             this.buttonPlay = new System.Windows.Forms.Button();
             this.listBoxVoice = new System.Windows.Forms.ListBox();
             this.groupBox6 = new System.Windows.Forms.GroupBox();
             this.textBoxLog = new System.Windows.Forms.TextBox();
-            this.label8 = new System.Windows.Forms.Label();
-            this.comboBox1 = new System.Windows.Forms.ComboBox();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
             this.groupBox4.SuspendLayout();
             this.groupBox9.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.trackBarVoiceValueSelf)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.trackBarVoiceVolumeSelf)).BeginInit();
             this.groupBox10.SuspendLayout();
             this.groupBox5.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.trackBarTime)).BeginInit();
             this.groupBox8.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.trackBarVoiceValue)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.trackBarVoiceVolume)).BeginInit();
             this.groupBox7.SuspendLayout();
             this.groupBox6.SuspendLayout();
             this.SuspendLayout();
@@ -101,6 +101,57 @@
             this.groupBox1.TabIndex = 0;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "系统状态";
+            // 
+            // comboBox1
+            // 
+            this.comboBox1.FormattingEnabled = true;
+            this.comboBox1.Items.AddRange(new object[] {
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6",
+            "7",
+            "8",
+            "9",
+            "10",
+            "11",
+            "12",
+            "13",
+            "14",
+            "15",
+            "16",
+            "17",
+            "18",
+            "19",
+            "20",
+            "21",
+            "22",
+            "23",
+            "24",
+            "25",
+            "26",
+            "27",
+            "28",
+            "29",
+            "30",
+            "31",
+            "32"});
+            this.comboBox1.Location = new System.Drawing.Point(144, 23);
+            this.comboBox1.Name = "comboBox1";
+            this.comboBox1.Size = new System.Drawing.Size(41, 20);
+            this.comboBox1.TabIndex = 4;
+            // 
+            // label8
+            // 
+            this.label8.AutoSize = true;
+            this.label8.Font = new System.Drawing.Font("宋体", 10F);
+            this.label8.Location = new System.Drawing.Point(115, 26);
+            this.label8.Name = "label8";
+            this.label8.Size = new System.Drawing.Size(28, 14);
+            this.label8.TabIndex = 1;
+            this.label8.Text = "COM";
             // 
             // labelSingal
             // 
@@ -207,6 +258,7 @@
             this.checkBoxAutoSend.TabIndex = 18;
             this.checkBoxAutoSend.Text = "自动发送";
             this.checkBoxAutoSend.UseVisualStyleBackColor = true;
+            this.checkBoxAutoSend.CheckedChanged += new System.EventHandler(this.checkBoxAutoSend_CheckedChanged);
             // 
             // checkBoxListenSelf
             // 
@@ -217,6 +269,7 @@
             this.checkBoxListenSelf.TabIndex = 17;
             this.checkBoxListenSelf.Text = "试听";
             this.checkBoxListenSelf.UseVisualStyleBackColor = true;
+            this.checkBoxListenSelf.CheckedChanged += new System.EventHandler(this.checkBoxListenSelf_CheckedChanged);
             // 
             // buttonSend
             // 
@@ -258,7 +311,7 @@
             // 
             // groupBox9
             // 
-            this.groupBox9.Controls.Add(this.trackBarVoiceValueSelf);
+            this.groupBox9.Controls.Add(this.trackBarVoiceVolumeSelf);
             this.groupBox9.Location = new System.Drawing.Point(151, 19);
             this.groupBox9.Name = "groupBox9";
             this.groupBox9.Size = new System.Drawing.Size(55, 134);
@@ -266,15 +319,16 @@
             this.groupBox9.TabStop = false;
             this.groupBox9.Text = "音量";
             // 
-            // trackBarVoiceValueSelf
+            // trackBarVoiceVolumeSelf
             // 
-            this.trackBarVoiceValueSelf.Location = new System.Drawing.Point(6, 12);
-            this.trackBarVoiceValueSelf.Maximum = 100;
-            this.trackBarVoiceValueSelf.Name = "trackBarVoiceValueSelf";
-            this.trackBarVoiceValueSelf.Orientation = System.Windows.Forms.Orientation.Vertical;
-            this.trackBarVoiceValueSelf.Size = new System.Drawing.Size(45, 116);
-            this.trackBarVoiceValueSelf.TabIndex = 3;
-            this.trackBarVoiceValueSelf.Value = 80;
+            this.trackBarVoiceVolumeSelf.Location = new System.Drawing.Point(6, 12);
+            this.trackBarVoiceVolumeSelf.Maximum = 100;
+            this.trackBarVoiceVolumeSelf.Name = "trackBarVoiceVolumeSelf";
+            this.trackBarVoiceVolumeSelf.Orientation = System.Windows.Forms.Orientation.Vertical;
+            this.trackBarVoiceVolumeSelf.Size = new System.Drawing.Size(45, 116);
+            this.trackBarVoiceVolumeSelf.TabIndex = 3;
+            this.trackBarVoiceVolumeSelf.Value = 80;
+            this.trackBarVoiceVolumeSelf.Scroll += new System.EventHandler(this.trackBarVoiceValueSelf_Scroll);
             // 
             // groupBox10
             // 
@@ -425,7 +479,7 @@
             // groupBox8
             // 
             this.groupBox8.Controls.Add(this.checkBoxSlience);
-            this.groupBox8.Controls.Add(this.trackBarVoiceValue);
+            this.groupBox8.Controls.Add(this.trackBarVoiceVolume);
             this.groupBox8.Location = new System.Drawing.Point(155, 11);
             this.groupBox8.Name = "groupBox8";
             this.groupBox8.Size = new System.Drawing.Size(55, 160);
@@ -443,15 +497,16 @@
             this.checkBoxSlience.Text = "静音";
             this.checkBoxSlience.UseVisualStyleBackColor = true;
             // 
-            // trackBarVoiceValue
+            // trackBarVoiceVolume
             // 
-            this.trackBarVoiceValue.Location = new System.Drawing.Point(6, 12);
-            this.trackBarVoiceValue.Maximum = 100;
-            this.trackBarVoiceValue.Name = "trackBarVoiceValue";
-            this.trackBarVoiceValue.Orientation = System.Windows.Forms.Orientation.Vertical;
-            this.trackBarVoiceValue.Size = new System.Drawing.Size(45, 127);
-            this.trackBarVoiceValue.TabIndex = 3;
-            this.trackBarVoiceValue.Value = 80;
+            this.trackBarVoiceVolume.Location = new System.Drawing.Point(6, 12);
+            this.trackBarVoiceVolume.Maximum = 100;
+            this.trackBarVoiceVolume.Name = "trackBarVoiceVolume";
+            this.trackBarVoiceVolume.Orientation = System.Windows.Forms.Orientation.Vertical;
+            this.trackBarVoiceVolume.Size = new System.Drawing.Size(45, 127);
+            this.trackBarVoiceVolume.TabIndex = 3;
+            this.trackBarVoiceVolume.Value = 80;
+            this.trackBarVoiceVolume.Scroll += new System.EventHandler(this.trackBarVoiceVolume_Scroll);
             // 
             // groupBox7
             // 
@@ -516,57 +571,6 @@
             this.textBoxLog.TabIndex = 0;
             this.textBoxLog.TabStop = false;
             // 
-            // label8
-            // 
-            this.label8.AutoSize = true;
-            this.label8.Font = new System.Drawing.Font("宋体", 10F);
-            this.label8.Location = new System.Drawing.Point(115, 26);
-            this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(28, 14);
-            this.label8.TabIndex = 1;
-            this.label8.Text = "COM";
-            // 
-            // comboBox1
-            // 
-            this.comboBox1.FormattingEnabled = true;
-            this.comboBox1.Items.AddRange(new object[] {
-            "1",
-            "2",
-            "3",
-            "4",
-            "5",
-            "6",
-            "7",
-            "8",
-            "9",
-            "10",
-            "11",
-            "12",
-            "13",
-            "14",
-            "15",
-            "16",
-            "17",
-            "18",
-            "19",
-            "20",
-            "21",
-            "22",
-            "23",
-            "24",
-            "25",
-            "26",
-            "27",
-            "28",
-            "29",
-            "30",
-            "31",
-            "32"});
-            this.comboBox1.Location = new System.Drawing.Point(144, 23);
-            this.comboBox1.Name = "comboBox1";
-            this.comboBox1.Size = new System.Drawing.Size(41, 20);
-            this.comboBox1.TabIndex = 4;
-            // 
             // FormMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -582,6 +586,7 @@
             this.MaximizeBox = false;
             this.Name = "FormMain";
             this.Text = " ";
+            this.Load += new System.EventHandler(this.FormMain_Load);
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
             this.groupBox2.ResumeLayout(false);
@@ -590,14 +595,14 @@
             this.groupBox4.PerformLayout();
             this.groupBox9.ResumeLayout(false);
             this.groupBox9.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.trackBarVoiceValueSelf)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.trackBarVoiceVolumeSelf)).EndInit();
             this.groupBox10.ResumeLayout(false);
             this.groupBox5.ResumeLayout(false);
             this.groupBox5.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.trackBarTime)).EndInit();
             this.groupBox8.ResumeLayout(false);
             this.groupBox8.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.trackBarVoiceValue)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.trackBarVoiceVolume)).EndInit();
             this.groupBox7.ResumeLayout(false);
             this.groupBox6.ResumeLayout(false);
             this.groupBox6.PerformLayout();
@@ -622,7 +627,7 @@
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.ListBox listBoxVoice;
         private System.Windows.Forms.CheckBox checkBoxAutoPlay;
-        private System.Windows.Forms.TrackBar trackBarVoiceValue;
+        private System.Windows.Forms.TrackBar trackBarVoiceVolume;
         private System.Windows.Forms.CheckBox checkBoxSlience;
         private System.Windows.Forms.Button buttonPlay;
         private System.Windows.Forms.CheckBox checkBoxSaveVoice;
@@ -637,7 +642,7 @@
         private System.Windows.Forms.Button buttonPlaySent;
         private System.Windows.Forms.Button buttonDeleteSent;
         private System.Windows.Forms.GroupBox groupBox10;
-        private System.Windows.Forms.TrackBar trackBarVoiceValueSelf;
+        private System.Windows.Forms.TrackBar trackBarVoiceVolumeSelf;
         private System.Windows.Forms.GroupBox groupBox9;
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.Label label7;

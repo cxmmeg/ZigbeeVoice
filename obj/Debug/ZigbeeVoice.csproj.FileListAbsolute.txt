@@ -7,3 +7,5 @@ E:\OneDrive\Dropbox\code\ZigbeeVoice\obj\Debug\ZigbeeVoice.csproj.GenerateResour
 E:\OneDrive\Dropbox\code\ZigbeeVoice\obj\Debug\ZigbeeVoice.exe
 E:\OneDrive\Dropbox\code\ZigbeeVoice\obj\Debug\ZigbeeVoice.pdb
 E:\OneDrive\Dropbox\code\ZigbeeVoice\obj\Debug\ZigbeeVoice.FormMain.resources
+E:\OneDrive\Dropbox\code\ZigbeeVoice\bin\Debug\NAudio.dll
+E:\OneDrive\Dropbox\code\ZigbeeVoice\bin\Debug\NAudio.WindowsMediaFormat.dll
