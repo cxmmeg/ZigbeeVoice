@@ -100,7 +100,7 @@
             this.groupBox1.Controls.Add(this.label1);
             this.groupBox1.Location = new System.Drawing.Point(12, 12);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(200, 89);
+            this.groupBox1.Size = new System.Drawing.Size(200, 104);
             this.groupBox1.TabIndex = 0;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "系统状态";
@@ -141,7 +141,7 @@
             "30",
             "31",
             "32"});
-            this.comboBox1.Location = new System.Drawing.Point(144, 23);
+            this.comboBox1.Location = new System.Drawing.Point(45, 21);
             this.comboBox1.Name = "comboBox1";
             this.comboBox1.Size = new System.Drawing.Size(41, 20);
             this.comboBox1.TabIndex = 4;
@@ -150,7 +150,7 @@
             // 
             this.label8.AutoSize = true;
             this.label8.Font = new System.Drawing.Font("宋体", 10F);
-            this.label8.Location = new System.Drawing.Point(115, 26);
+            this.label8.Location = new System.Drawing.Point(12, 24);
             this.label8.Name = "label8";
             this.label8.Size = new System.Drawing.Size(28, 14);
             this.label8.TabIndex = 1;
@@ -161,7 +161,7 @@
             this.labelSingal.AutoSize = true;
             this.labelSingal.Font = new System.Drawing.Font("宋体", 15F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.labelSingal.ForeColor = System.Drawing.Color.Gray;
-            this.labelSingal.Location = new System.Drawing.Point(80, 53);
+            this.labelSingal.Location = new System.Drawing.Point(164, 52);
             this.labelSingal.Name = "labelSingal";
             this.labelSingal.Size = new System.Drawing.Size(29, 20);
             this.labelSingal.TabIndex = 3;
@@ -170,7 +170,7 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(19, 57);
+            this.label2.Location = new System.Drawing.Point(103, 56);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(65, 12);
             this.label2.TabIndex = 2;
@@ -181,7 +181,7 @@
             this.labelStatu.AutoSize = true;
             this.labelStatu.Font = new System.Drawing.Font("宋体", 15F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.labelStatu.ForeColor = System.Drawing.Color.Red;
-            this.labelStatu.Location = new System.Drawing.Point(80, 22);
+            this.labelStatu.Location = new System.Drawing.Point(164, 21);
             this.labelStatu.Name = "labelStatu";
             this.labelStatu.Size = new System.Drawing.Size(29, 20);
             this.labelStatu.TabIndex = 1;
@@ -190,7 +190,7 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(19, 26);
+            this.label1.Location = new System.Drawing.Point(103, 25);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(65, 12);
             this.label1.TabIndex = 0;
@@ -199,9 +199,9 @@
             // groupBox2
             // 
             this.groupBox2.Controls.Add(this.listBoxNode);
-            this.groupBox2.Location = new System.Drawing.Point(12, 107);
+            this.groupBox2.Location = new System.Drawing.Point(12, 122);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(200, 180);
+            this.groupBox2.Size = new System.Drawing.Size(200, 116);
             this.groupBox2.TabIndex = 1;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "设备列表";
@@ -213,15 +213,15 @@
             this.listBoxNode.Location = new System.Drawing.Point(6, 20);
             this.listBoxNode.Name = "listBoxNode";
             this.listBoxNode.SelectionMode = System.Windows.Forms.SelectionMode.MultiExtended;
-            this.listBoxNode.Size = new System.Drawing.Size(188, 148);
+            this.listBoxNode.Size = new System.Drawing.Size(188, 88);
             this.listBoxNode.TabIndex = 0;
             // 
             // groupBox3
             // 
             this.groupBox3.Controls.Add(this.listBoxLog);
-            this.groupBox3.Location = new System.Drawing.Point(12, 293);
+            this.groupBox3.Location = new System.Drawing.Point(12, 244);
             this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Size = new System.Drawing.Size(200, 180);
+            this.groupBox3.Size = new System.Drawing.Size(200, 201);
             this.groupBox3.TabIndex = 2;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "系统日志";
@@ -232,7 +232,7 @@
             this.listBoxLog.ItemHeight = 12;
             this.listBoxLog.Location = new System.Drawing.Point(6, 14);
             this.listBoxLog.Name = "listBoxLog";
-            this.listBoxLog.Size = new System.Drawing.Size(188, 160);
+            this.listBoxLog.Size = new System.Drawing.Size(188, 184);
             this.listBoxLog.TabIndex = 0;
             this.listBoxLog.SelectedIndexChanged += new System.EventHandler(this.listBoxLog_SelectedIndexChanged);
             this.listBoxLog.DoubleClick += new System.EventHandler(this.listBoxLog_DoubleClicked);
@@ -562,7 +562,7 @@
             this.groupBox6.Controls.Add(this.textBoxLog);
             this.groupBox6.Location = new System.Drawing.Point(218, 360);
             this.groupBox6.Name = "groupBox6";
-            this.groupBox6.Size = new System.Drawing.Size(427, 113);
+            this.groupBox6.Size = new System.Drawing.Size(427, 85);
             this.groupBox6.TabIndex = 3;
             this.groupBox6.TabStop = false;
             this.groupBox6.Text = "日志详情";
@@ -572,12 +572,12 @@
             this.textBoxLog.AcceptsReturn = true;
             this.textBoxLog.AcceptsTab = true;
             this.textBoxLog.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.textBoxLog.Location = new System.Drawing.Point(6, 20);
+            this.textBoxLog.Location = new System.Drawing.Point(8, 20);
             this.textBoxLog.Multiline = true;
             this.textBoxLog.Name = "textBoxLog";
             this.textBoxLog.ReadOnly = true;
             this.textBoxLog.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.textBoxLog.Size = new System.Drawing.Size(415, 87);
+            this.textBoxLog.Size = new System.Drawing.Size(415, 59);
             this.textBoxLog.TabIndex = 0;
             this.textBoxLog.TabStop = false;
             this.textBoxLog.DoubleClick += new System.EventHandler(this.textBoxLog_DoubleClick);
@@ -596,7 +596,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(657, 485);
+            this.ClientSize = new System.Drawing.Size(657, 457);
             this.Controls.Add(this.groupBox4);
             this.Controls.Add(this.groupBox5);
             this.Controls.Add(this.groupBox6);
