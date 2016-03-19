@@ -19,6 +19,9 @@ namespace ZigbeeVoice
             InitializeComponent();
         }
         Sound sound;
+        float Volume = 0.7F;
+        float VolumeSelf = 0.7F;
+        bool ListenSelf = false;
         private void buttonSend_MouseDown(object sender, EventArgs e)
         {
             StartSend();
@@ -30,8 +33,8 @@ namespace ZigbeeVoice
         private void FormMain_Load(object sender, EventArgs e)
         {
             sound = new Sound();
-            sound.wavePlayer_Self.Volume = (float)trackBarVoiceVolumeSelf.Value / 100;
-            sound.wavePlayer.Volume = (float)trackBarVoiceVolume.Value / 100;
+            sound.wavePlayer_Self.Volume = VolumeSelf;
+            sound.wavePlayer.Volume = Volume;
             GetFileList(1);
             GetFileList(2);
         }
@@ -47,6 +50,9 @@ namespace ZigbeeVoice
         private void StartSend()
         {
             sound = new Sound();
+            sound.wavePlayer.Volume = Volume;
+            sound.wavePlayer_Self.Volume = VolumeSelf;
+            sound.ListenSelf = ListenSelf;
             if (!Directory.Exists("Send"))
                 Directory.CreateDirectory("send");
             string soundfile = DateTime.Now.ToShortDateString().Replace('/', '-') + ' ';
@@ -103,17 +109,20 @@ namespace ZigbeeVoice
 
         private void checkBoxListenSelf_CheckedChanged(object sender, EventArgs e)
         {
-            sound.ListenSelf = checkBoxListenSelf.Checked;
+            ListenSelf = checkBoxListenSelf.Checked;
+            sound.ListenSelf = ListenSelf;
         }
 
         private void trackBarVoiceValueSelf_Scroll(object sender, EventArgs e)
         {
-            sound.wavePlayer_Self.Volume = (float)trackBarVoiceVolumeSelf.Value / 100;
+            VolumeSelf = (float)trackBarVoiceVolumeSelf.Value / 100;
+            sound.wavePlayer_Self.Volume = VolumeSelf;
         }
 
         private void trackBarVoiceVolume_Scroll(object sender, EventArgs e)
         {
-            sound.wavePlayer.Volume = (float)trackBarVoiceVolume.Value / 100;
+            Volume= (float)trackBarVoiceVolume.Value / 100;
+            sound.wavePlayer.Volume = Volume;
         }
 
         private void buttonPlaySent_Click(object sender, EventArgs e)
@@ -155,11 +164,13 @@ namespace ZigbeeVoice
             if (checkBoxSlience.Checked == true)
             {
                 sound.wavePlayer.Volume = 0;
+                Volume = 0;
                 trackBarVoiceVolume.Enabled = false;
             }
             else
             {
-                sound.wavePlayer.Volume = (float)trackBarVoiceVolume.Value / 100;
+                Volume = (float)trackBarVoiceVolume.Value / 100;
+                sound.wavePlayer.Volume = Volume;
                 trackBarVoiceVolume.Enabled = true;
             }
         }
