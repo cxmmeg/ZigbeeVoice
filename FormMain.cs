@@ -18,7 +18,8 @@ namespace ZigbeeVoice
         {
             InitializeComponent();
         }
-        Sound sound;
+        Recorder recorder;
+        Player player = new Player();
         float Volume = 0.7F;
         float VolumeSelf = 0.7F;
         bool ListenSelf = false;
@@ -32,15 +33,15 @@ namespace ZigbeeVoice
         }
         private void FormMain_Load(object sender, EventArgs e)
         {
-            sound = new Sound();
-            sound.wavePlayer_Self.Volume = VolumeSelf;
-            sound.wavePlayer.Volume = Volume;
+            recorder = new Recorder();
+            recorder.wavePlayer_Self.Volume = VolumeSelf;
+            player.wavePlayer.Volume = Volume;
             GetFileList(1);
             GetFileList(2);
         }
         private void StopSend()
         {
-            sound.StopRecord();
+            recorder.StopRecord();
             FrazeSend();
             GC.Collect();
             listBoxLog.Items.Add("发送时间：" + DateTime.Now.ToLongTimeString() + "  " + "时长：" + SendTime);
@@ -49,10 +50,10 @@ namespace ZigbeeVoice
         }
         private void StartSend()
         {
-            sound = new Sound();
-            sound.wavePlayer.Volume = Volume;
-            sound.wavePlayer_Self.Volume = VolumeSelf;
-            sound.ListenSelf = ListenSelf;
+            recorder = new Recorder();
+            player.wavePlayer.Volume = Volume;
+            recorder.wavePlayer_Self.Volume = VolumeSelf;
+            recorder.ListenSelf = ListenSelf;
             if (!Directory.Exists("Send"))
                 Directory.CreateDirectory("send");
             string soundfile = DateTime.Now.ToShortDateString().Replace('/', '-') + ' ';
@@ -63,7 +64,7 @@ namespace ZigbeeVoice
                 while (File.Exists("Send/" + soundfile + "-" + i.ToString() + ".wav")) ;
                 soundfile += "-" + i.ToString();
             }
-            sound.BeginRecord("Send/" + soundfile + ".wav");
+            recorder.BeginRecord("Send/" + soundfile + ".wav");
             listBoxVoiceSend.Items.Add(soundfile + ".wav");
             timerSend.Enabled = true;
             timerSend.Start();
@@ -110,19 +111,19 @@ namespace ZigbeeVoice
         private void checkBoxListenSelf_CheckedChanged(object sender, EventArgs e)
         {
             ListenSelf = checkBoxListenSelf.Checked;
-            sound.ListenSelf = ListenSelf;
+            recorder.ListenSelf = ListenSelf;
         }
 
         private void trackBarVoiceValueSelf_Scroll(object sender, EventArgs e)
         {
             VolumeSelf = (float)trackBarVoiceVolumeSelf.Value / 100;
-            sound.wavePlayer_Self.Volume = VolumeSelf;
+            recorder.wavePlayer_Self.Volume = VolumeSelf;
         }
 
         private void trackBarVoiceVolume_Scroll(object sender, EventArgs e)
         {
             Volume= (float)trackBarVoiceVolume.Value / 100;
-            sound.wavePlayer.Volume = Volume;
+            player.wavePlayer.Volume = Volume;
         }
 
         private void buttonPlaySent_Click(object sender, EventArgs e)
@@ -130,7 +131,7 @@ namespace ZigbeeVoice
             if (listBoxVoiceSend.SelectedItem == null)
                 return;
             string filename = listBoxVoiceSend.GetItemText(listBoxVoiceSend.SelectedItem);
-            sound.play_sound("Send/" + filename);
+            player.play_sound("Send/" + filename);
         }
 
         private void buttonPlay_Click(object sender, EventArgs e)
@@ -138,7 +139,7 @@ namespace ZigbeeVoice
             if (listBoxVoice.SelectedItem == null)
                 return;
             string filename = listBoxVoice.GetItemText(listBoxVoice.SelectedItem);
-            sound.play_sound("Get/" + filename);
+            player.play_sound("Get/" + filename);
         }
 
         private void buttonDeleteSent_Click(object sender, EventArgs e)
@@ -163,14 +164,14 @@ namespace ZigbeeVoice
         {
             if (checkBoxSlience.Checked == true)
             {
-                sound.wavePlayer.Volume = 0;
+                player.wavePlayer.Volume = 0;
                 Volume = 0;
                 trackBarVoiceVolume.Enabled = false;
             }
             else
             {
                 Volume = (float)trackBarVoiceVolume.Value / 100;
-                sound.wavePlayer.Volume = Volume;
+                player.wavePlayer.Volume = Volume;
                 trackBarVoiceVolume.Enabled = true;
             }
         }

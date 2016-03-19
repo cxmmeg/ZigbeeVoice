@@ -11,14 +11,12 @@ using System.IO;
 
 namespace ZigbeeVoice
 {
-    class Sound
+    class Recorder
     {
         public bool ListenSelf = false;
         private IWaveIn waveIn;
-        private WaveFileWriter writer;
-        public IWavePlayer wavePlayer = new WaveOut();
-        public IWavePlayer wavePlayer_Self = new WaveOut();
-        private WaveStream reader;
+        private WaveFileWriter writer;        
+        public IWavePlayer wavePlayer_Self = new WaveOut();        
         private static WaveFormat waveFormat = new WaveFormat(12000, 2);
         private BufferedWaveProvider bufferedWaveProvider;
         //------------------录音相关-----------------------------
@@ -36,9 +34,8 @@ namespace ZigbeeVoice
             wavePlayer_Self.Init(bufferedWaveProvider);
 
             //开始录音、回放
-            wavePlayer_Self.Play();
-
             waveIn.StartRecording();
+            wavePlayer_Self.Play();
         }
         //停止录音
         public void StopRecord()
@@ -66,43 +63,6 @@ namespace ZigbeeVoice
                 writer.Dispose();
                 writer = null;
             }
-        }
-
-        //--------播放部分----------      
-        public void play_sound(string filename)
-        {
-            if (wavePlayer != null)
-            {
-                wavePlayer.Dispose();
-                wavePlayer = null;
-            }
-            if (reader != null)
-            {
-                reader.Dispose();
-            }
-            try
-            {
-                reader = new MediaFoundationReader(filename, new MediaFoundationReader.MediaFoundationReaderSettings() { SingleReaderObject = true });
-            }
-            catch (Exception)
-            {
-                return;
-            }
-
-            if (wavePlayer == null)
-            {
-                wavePlayer = new WaveOut();
-                wavePlayer.PlaybackStopped += WavePlayerOnPlaybackStopped;
-                wavePlayer.Init(reader);
-            }
-            wavePlayer.Play();
-        }
-        private void WavePlayerOnPlaybackStopped(object sender, StoppedEventArgs stoppedEventArgs)
-        {
-            if (wavePlayer != null)
-            {
-                wavePlayer.Stop();
-            }
-        }
+        }      
     }
 }
