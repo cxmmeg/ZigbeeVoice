@@ -350,6 +350,7 @@
             this.buttonDeleteSent.TabIndex = 7;
             this.buttonDeleteSent.Text = "删除";
             this.buttonDeleteSent.UseVisualStyleBackColor = true;
+            this.buttonDeleteSent.Click += new System.EventHandler(this.buttonDeleteSent_Click);
             // 
             // buttonPlaySent
             // 
@@ -359,6 +360,7 @@
             this.buttonPlaySent.TabIndex = 6;
             this.buttonPlaySent.Text = "播  放";
             this.buttonPlaySent.UseVisualStyleBackColor = true;
+            this.buttonPlaySent.Click += new System.EventHandler(this.buttonPlaySent_Click);
             // 
             // listBoxVoiceSend
             // 
@@ -496,6 +498,7 @@
             this.checkBoxSlience.TabIndex = 5;
             this.checkBoxSlience.Text = "静音";
             this.checkBoxSlience.UseVisualStyleBackColor = true;
+            this.checkBoxSlience.CheckedChanged += new System.EventHandler(this.checkBoxSlience_CheckedChanged);
             // 
             // trackBarVoiceVolume
             // 
@@ -528,6 +531,7 @@
             this.buttonDelete.TabIndex = 7;
             this.buttonDelete.Text = "删  除";
             this.buttonDelete.UseVisualStyleBackColor = true;
+            this.buttonDelete.Click += new System.EventHandler(this.buttonDelete_Click);
             // 
             // buttonPlay
             // 
@@ -537,6 +541,7 @@
             this.buttonPlay.TabIndex = 6;
             this.buttonPlay.Text = "播  放";
             this.buttonPlay.UseVisualStyleBackColor = true;
+            this.buttonPlay.Click += new System.EventHandler(this.buttonPlay_Click);
             // 
             // listBoxVoice
             // 
@@ -585,7 +590,7 @@
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
             this.Name = "FormMain";
-            this.Text = " ";
+            this.Text = "矿井无线语音通信管理系统";
             this.Load += new System.EventHandler(this.FormMain_Load);
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();

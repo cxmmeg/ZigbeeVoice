@@ -80,10 +80,18 @@ namespace ZigbeeVoice
             {
                 reader.Dispose();
             }
-            reader = new MediaFoundationReader(filename, new MediaFoundationReader.MediaFoundationReaderSettings() { SingleReaderObject = true });
+            try
+            {
+                reader = new MediaFoundationReader(filename, new MediaFoundationReader.MediaFoundationReaderSettings() { SingleReaderObject = true });
+            }
+            catch(Exception)
+            {
+                return;
+            }
 
             if (wavePlayer == null)
             {
+                wavePlayer = new WaveOut();
                 wavePlayer.PlaybackStopped += WavePlayerOnPlaybackStopped;
                 wavePlayer.Init(reader);
             }
