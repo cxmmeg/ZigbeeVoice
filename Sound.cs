@@ -31,11 +31,11 @@ namespace ZigbeeVoice
             }
             writer = new WaveFileWriter(soundfile, waveIn.WaveFormat);
             bufferedWaveProvider = new BufferedWaveProvider(waveIn.WaveFormat);
-            // set up playback
+            //设置回放
             wavePlayer_Self = new WaveOut();
             wavePlayer_Self.Init(bufferedWaveProvider);
 
-            // begin playback & record
+            //开始录音、回放
             wavePlayer_Self.Play();
 
             waveIn.StartRecording();
@@ -84,7 +84,7 @@ namespace ZigbeeVoice
             {
                 reader = new MediaFoundationReader(filename, new MediaFoundationReader.MediaFoundationReaderSettings() { SingleReaderObject = true });
             }
-            catch(Exception)
+            catch (Exception)
             {
                 return;
             }

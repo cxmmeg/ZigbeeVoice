@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormMain));
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.comboBox1 = new System.Windows.Forms.ComboBox();
@@ -72,6 +73,8 @@
             this.listBoxVoice = new System.Windows.Forms.ListBox();
             this.groupBox6 = new System.Windows.Forms.GroupBox();
             this.textBoxLog = new System.Windows.Forms.TextBox();
+            this.timerFrazeSend = new System.Windows.Forms.Timer(this.components);
+            this.timerSend = new System.Windows.Forms.Timer(this.components);
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -231,6 +234,8 @@
             this.listBoxLog.Name = "listBoxLog";
             this.listBoxLog.Size = new System.Drawing.Size(188, 160);
             this.listBoxLog.TabIndex = 0;
+            this.listBoxLog.SelectedIndexChanged += new System.EventHandler(this.listBoxLog_SelectedIndexChanged);
+            this.listBoxLog.DoubleClick += new System.EventHandler(this.listBoxLog_DoubleClicked);
             // 
             // groupBox4
             // 
@@ -277,7 +282,7 @@
             this.buttonSend.Name = "buttonSend";
             this.buttonSend.Size = new System.Drawing.Size(137, 75);
             this.buttonSend.TabIndex = 16;
-            this.buttonSend.Text = "按下发送";
+            this.buttonSend.Text = "按住发送";
             this.buttonSend.UseVisualStyleBackColor = true;
             this.buttonSend.MouseDown += new System.Windows.Forms.MouseEventHandler(this.buttonSend_MouseDown);
             this.buttonSend.MouseUp += new System.Windows.Forms.MouseEventHandler(this.buttonSend_MouseUp);
@@ -575,6 +580,17 @@
             this.textBoxLog.Size = new System.Drawing.Size(415, 87);
             this.textBoxLog.TabIndex = 0;
             this.textBoxLog.TabStop = false;
+            this.textBoxLog.DoubleClick += new System.EventHandler(this.textBoxLog_DoubleClick);
+            // 
+            // timerFrazeSend
+            // 
+            this.timerFrazeSend.Interval = 2000;
+            this.timerFrazeSend.Tick += new System.EventHandler(this.timerFrazeSend_Tick);
+            // 
+            // timerSend
+            // 
+            this.timerSend.Interval = 1000;
+            this.timerSend.Tick += new System.EventHandler(this.timerSend_Tick);
             // 
             // FormMain
             // 
@@ -660,6 +676,8 @@
         private System.Windows.Forms.CheckBox checkBoxListenSelf;
         private System.Windows.Forms.ComboBox comboBox1;
         private System.Windows.Forms.Label label8;
+        private System.Windows.Forms.Timer timerFrazeSend;
+        private System.Windows.Forms.Timer timerSend;
     }
 }
 

@@ -13,6 +13,7 @@ namespace ZigbeeVoice
 {
     public partial class FormMain : Form
     {
+        private int SendTime = 0;
         public FormMain()
         {
             InitializeComponent();
@@ -24,9 +25,8 @@ namespace ZigbeeVoice
         }
         private void buttonSend_MouseUp(object sender, EventArgs e)
         {
-            sound.StopRecord();
+            StopSend();
         }
-
         private void FormMain_Load(object sender, EventArgs e)
         {
             sound = new Sound();
@@ -35,8 +35,18 @@ namespace ZigbeeVoice
             GetFileList(1);
             GetFileList(2);
         }
+        private void StopSend()
+        {
+            sound.StopRecord();
+            FrazeSend();
+            GC.Collect();
+            listBoxLog.Items.Add("发送时间：" + DateTime.Now.ToLongTimeString() + "  " + "时长：" + SendTime);
+            timerSend.Stop();
+            SendTime = 0;
+        }
         private void StartSend()
         {
+            sound = new Sound();
             if (!Directory.Exists("Send"))
                 Directory.CreateDirectory("send");
             string soundfile = DateTime.Now.ToShortDateString().Replace('/', '-') + ' ';
@@ -49,6 +59,9 @@ namespace ZigbeeVoice
             }
             sound.BeginRecord("Send/" + soundfile + ".wav");
             listBoxVoiceSend.Items.Add(soundfile + ".wav");
+            timerSend.Enabled = true;
+            timerSend.Start();
+            buttonSend.Text = "稍等一秒";
         }
         private void GetFileList(int inf)
         {
@@ -84,8 +97,7 @@ namespace ZigbeeVoice
             }
             else
             {
-                sound.StopRecord();
-                buttonSend.Enabled = true;
+                StopSend();
             }
         }
 
@@ -106,18 +118,24 @@ namespace ZigbeeVoice
 
         private void buttonPlaySent_Click(object sender, EventArgs e)
         {
+            if (listBoxVoiceSend.SelectedItem == null)
+                return;
             string filename = listBoxVoiceSend.GetItemText(listBoxVoiceSend.SelectedItem);
             sound.play_sound("Send/" + filename);
         }
 
         private void buttonPlay_Click(object sender, EventArgs e)
         {
+            if (listBoxVoice.SelectedItem == null)
+                return;
             string filename = listBoxVoice.GetItemText(listBoxVoice.SelectedItem);
             sound.play_sound("Get/" + filename);
         }
 
         private void buttonDeleteSent_Click(object sender, EventArgs e)
         {
+            if (listBoxVoiceSend.SelectedItem == null)
+                return;
             string filename = listBoxVoiceSend.GetItemText(listBoxVoiceSend.SelectedItem);
             listBoxVoiceSend.Items.Remove(listBoxVoiceSend.SelectedItem);
             File.Delete("Send/" + filename);
@@ -125,6 +143,8 @@ namespace ZigbeeVoice
 
         private void buttonDelete_Click(object sender, EventArgs e)
         {
+            if (listBoxVoice.SelectedItem == null)
+                return;
             string filename = listBoxVoice.GetItemText(listBoxVoice.SelectedItem);
             listBoxVoice.Items.Remove(listBoxVoice.SelectedItem);
             File.Delete("Get/" + filename);
@@ -132,7 +152,7 @@ namespace ZigbeeVoice
 
         private void checkBoxSlience_CheckedChanged(object sender, EventArgs e)
         {
-            if(checkBoxSlience.Checked==true)
+            if (checkBoxSlience.Checked == true)
             {
                 sound.wavePlayer.Volume = 0;
                 trackBarVoiceVolume.Enabled = false;
@@ -142,6 +162,48 @@ namespace ZigbeeVoice
                 sound.wavePlayer.Volume = (float)trackBarVoiceVolume.Value / 100;
                 trackBarVoiceVolume.Enabled = true;
             }
+        }
+        private void FrazeSend(int ms = 1000)
+        {
+            buttonSend.Enabled = false;
+            buttonSend.Text = "请稍等...";
+            checkBoxAutoSend.Enabled = false;
+            timerFrazeSend.Interval = ms;
+            timerFrazeSend.Enabled = true;
+            timerFrazeSend.Start();
+        }
+        private void timerFrazeSend_Tick(object sender, EventArgs e)
+        {
+            timerFrazeSend.Stop();
+            timerFrazeSend.Enabled = false;
+            buttonSend.Enabled = true;
+            buttonSend.Text = "按住发送";
+            checkBoxAutoSend.Enabled = true;
+        }
+
+        private void timerSend_Tick(object sender, EventArgs e)
+        {
+            SendTime++;
+            if (SendTime == 1)
+                buttonSend.Text = "按住发送";
+        }
+
+        private void listBoxLog_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (listBoxLog.SelectedItem == null)
+                return;
+            textBoxLog.Text = listBoxLog.GetItemText(listBoxLog.SelectedItem);
+        }
+        private void listBoxLog_DoubleClicked(object sender, EventArgs e)
+        {
+            if (listBoxLog.SelectedItem == null)
+                return;
+            Clipboard.SetDataObject(listBoxLog.GetItemText(listBoxLog.SelectedItem));
+        }
+
+        private void textBoxLog_DoubleClick(object sender, EventArgs e)
+        {
+            Clipboard.SetDataObject(textBoxLog.Text);
         }
     }
 }
