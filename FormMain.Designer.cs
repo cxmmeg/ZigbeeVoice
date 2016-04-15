@@ -31,7 +31,8 @@
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormMain));
             this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.comboBox1 = new System.Windows.Forms.ComboBox();
+            this.buttonConnect = new System.Windows.Forms.Button();
+            this.comboBoxCOM = new System.Windows.Forms.ComboBox();
             this.label8 = new System.Windows.Forms.Label();
             this.labelSingal = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
@@ -75,6 +76,8 @@
             this.textBoxLog = new System.Windows.Forms.TextBox();
             this.timerFrazeSend = new System.Windows.Forms.Timer(this.components);
             this.timerSend = new System.Windows.Forms.Timer(this.components);
+            this.serialPort1 = new System.IO.Ports.SerialPort(this.components);
+            this.timerMain = new System.Windows.Forms.Timer(this.components);
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -92,7 +95,8 @@
             // 
             // groupBox1
             // 
-            this.groupBox1.Controls.Add(this.comboBox1);
+            this.groupBox1.Controls.Add(this.buttonConnect);
+            this.groupBox1.Controls.Add(this.comboBoxCOM);
             this.groupBox1.Controls.Add(this.label8);
             this.groupBox1.Controls.Add(this.labelSingal);
             this.groupBox1.Controls.Add(this.label2);
@@ -105,10 +109,22 @@
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "系统状态";
             // 
-            // comboBox1
+            // buttonConnect
             // 
-            this.comboBox1.FormattingEnabled = true;
-            this.comboBox1.Items.AddRange(new object[] {
+            this.buttonConnect.BackColor = System.Drawing.Color.Red;
+            this.buttonConnect.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.buttonConnect.Location = new System.Drawing.Point(15, 51);
+            this.buttonConnect.Name = "buttonConnect";
+            this.buttonConnect.Size = new System.Drawing.Size(75, 23);
+            this.buttonConnect.TabIndex = 4;
+            this.buttonConnect.Text = "连接";
+            this.buttonConnect.UseVisualStyleBackColor = false;
+            this.buttonConnect.Click += new System.EventHandler(this.buttonConnect_Click);
+            // 
+            // comboBoxCOM
+            // 
+            this.comboBoxCOM.FormattingEnabled = true;
+            this.comboBoxCOM.Items.AddRange(new object[] {
             "1",
             "2",
             "3",
@@ -141,10 +157,10 @@
             "30",
             "31",
             "32"});
-            this.comboBox1.Location = new System.Drawing.Point(45, 21);
-            this.comboBox1.Name = "comboBox1";
-            this.comboBox1.Size = new System.Drawing.Size(41, 20);
-            this.comboBox1.TabIndex = 4;
+            this.comboBoxCOM.Location = new System.Drawing.Point(45, 21);
+            this.comboBoxCOM.Name = "comboBoxCOM";
+            this.comboBoxCOM.Size = new System.Drawing.Size(41, 20);
+            this.comboBoxCOM.TabIndex = 4;
             // 
             // label8
             // 
@@ -592,6 +608,16 @@
             this.timerSend.Interval = 1000;
             this.timerSend.Tick += new System.EventHandler(this.timerSend_Tick);
             // 
+            // serialPort1
+            // 
+            this.serialPort1.BaudRate = 115200;
+            this.serialPort1.DataReceived += new System.IO.Ports.SerialDataReceivedEventHandler(this.serialPort1_DataReceived);
+            // 
+            // timerMain
+            // 
+            this.timerMain.Interval = 10;
+            this.timerMain.Tick += new System.EventHandler(this.timerMain_Tick);
+            // 
             // FormMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -674,10 +700,13 @@
         private System.Windows.Forms.Button buttonSend;
         private System.Windows.Forms.CheckBox checkBoxAutoSend;
         private System.Windows.Forms.CheckBox checkBoxListenSelf;
-        private System.Windows.Forms.ComboBox comboBox1;
+        private System.Windows.Forms.ComboBox comboBoxCOM;
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.Timer timerFrazeSend;
         private System.Windows.Forms.Timer timerSend;
+        private System.IO.Ports.SerialPort serialPort1;
+        private System.Windows.Forms.Timer timerMain;
+        private System.Windows.Forms.Button buttonConnect;
     }
 }
 
