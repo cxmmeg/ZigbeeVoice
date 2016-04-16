@@ -611,11 +611,12 @@
             // serialPort1
             // 
             this.serialPort1.BaudRate = 115200;
+            this.serialPort1.ReceivedBytesThreshold = 5;
             this.serialPort1.DataReceived += new System.IO.Ports.SerialDataReceivedEventHandler(this.serialPort1_DataReceived);
             // 
             // timerMain
             // 
-            this.timerMain.Interval = 10;
+            this.timerMain.Interval = 5;
             this.timerMain.Tick += new System.EventHandler(this.timerMain_Tick);
             // 
             // FormMain
