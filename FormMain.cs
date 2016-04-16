@@ -47,7 +47,7 @@ namespace ZigbeeVoice
             listBoxLog.Items.Add("发送时间：" + DateTime.Now.ToLongTimeString() + "  " + "时长：" + SendTime);
             timerSend.Stop();
             SendTime = 0;
-            UARTSendCommend(0x06);
+            SendingStop = true;
         }
         private string GetFileName(string folder)
         {
@@ -75,7 +75,7 @@ namespace ZigbeeVoice
             timerSend.Enabled = true;
             timerSend.Start();
             buttonSend.Text = "稍等一秒";
-            UARTSendCommend(0x05);
+            SendingStart = true;
         }
 
         private void GetFileList(int inf)
@@ -242,8 +242,23 @@ namespace ZigbeeVoice
                 }
                 buttonConnect.Text = "断开";
                 buttonConnect.BackColor = Color.Green;
-                UARTSendCommend(0x01);
-                UARTSendCommend(0x02);
+                C51SystemReset = true;
+
+                ms5000 = 0;
+                C51PlayQueueStatu = 0;
+                C51RecordQueueStatu = 0;
+                serialPort1_DataReceived_UnfinishFlag = false;
+                DataResived.Clear();
+                DataBlockResived = 0;
+                if (Fs != null)
+                    Fs.Close();
+                SendingStart = false;
+                SendingStop = false;
+                Sending = false;
+                Resiving = false;
+                C51SystemReset = false;
+                DataRecorded.Clear();
+
                 timerMain.Enabled = true;
                 timerMain.Start();
             }
@@ -260,11 +275,13 @@ namespace ZigbeeVoice
         int ms5000 = 0;
         private void timerMain_Tick(object sender, EventArgs e)
         {
-            if (ms5000 > 30)
-            {
-                UARTSendCommend(0x02);
-            }
-            ms5000 += 5;
+            timerMain.Stop();
+            if (!Resiving)
+                UARTSendData();
+            timerMain.Start();
+            ms5000 += timerMain.Interval;
+            if (ms5000 > 1000 && Resiving)
+                StopResiving();
             if (ms5000 >= 5000)
             {
                 ms5000 = 0;
@@ -275,7 +292,9 @@ namespace ZigbeeVoice
                 timerMain.Stop();
             }
         }
-        int serialPort1_DataReceived_UnfinishCount = 0;
+        int test = 0;
+        int C51PlayQueueStatu = 0;
+        int C51RecordQueueStatu = 0;
         bool serialPort1_DataReceived_UnfinishFlag = false;
         private void serialPort1_DataReceived(object sender, System.IO.Ports.SerialDataReceivedEventArgs e)
         {
@@ -283,24 +302,53 @@ namespace ZigbeeVoice
             if (!serialPort1_DataReceived_UnfinishFlag)
             {
                 serialPort1_DataReceived_UnfinishFlag = true;
-                serialPort1.Read(t, 0, 5);
-                if (t[0] == 0x96 && t[1] == 0x38 && t[2] == 0x52 && t[3] == 0x74)
+                serialPort1.Read(t, 0, 9);
+                test += 9;
+                if (t[0] == 0x96 && t[1] == 0x38 && t[2] == 0x52 && t[3] == 0x74 && t[4] == 0x10)
                 {
+                    C51PlayQueueStatu = t[5];
+                    C51RecordQueueStatu = t[6];
                     labelSingal.ForeColor = Color.Blue;
                     labelStatu.ForeColor = Color.Green;
-                    switch (t[4])
+                    switch (t[7])
                     {
-                        case (0x11): ms5000 = 0; break;                         //重启系统
-                        case (0x12): ms5000 = 0; ReadStatu(); break;            //读取状态
-                        case (0x13): ms5000 = 0; ReadData(); break;             //读取数据
-                        case (0x14): ms5000 = 0; break;                         //写入数据
-                        case (0x15): ms5000 = 0; break;                         //开始播放
-                        case (0x16): ms5000 = 0; break;                         //停止播放
-                        case (0x1c): break;                                     //读取数据出错
-                        case (0x1d): break;                                     //写入数据出错
-                        case (0x1e): break;                                     //开始播放失败
-                        case (0x00): serialPort1.Read(t, 0, 5); break;          //命令无效
+                        case (0x00): ms5000 = 0; if (Resiving) StopResiving(); break;   //系统空闲
+                        case (0x10): ms5000 = 0; break;                                 //正在播放
+                        case (0x01): ms5000 = 0; StartResiving(); break;                //录音开始
+                        case (0x02): ms5000 = 0; if (!Resiving) StartResiving(); break;  //正在录音
+                        case (0x03): ms5000 = 0; StopResiving(); break;                 //录音结束
                         default: break;
+                    }
+                    if (t[8] == 0x02)
+                    {
+                        byte[] t1 = new byte[520];
+                        while (serialPort1.BytesToRead < 256) ;
+                        serialPort1.Read(t1, 0, 256);
+                        test += 256;
+                        DataBlockResived++;
+
+                        for (int i = 0; i < 256; i++)
+                            DataResived.Enqueue(t1[i]);
+
+                        while (serialPort1.BytesToRead < 256) ;
+                        serialPort1.Read(t1, 0, 256);
+                        test += 256;
+                        DataBlockResived++;
+
+                        for (int i = 0; i < 256; i++)
+                            DataResived.Enqueue(t1[i]);
+                        //Fs.Write(t, 0, 256);            
+                    }
+                    else if (t[8] == 0x01)
+                    {
+                        byte[] t1 = new byte[520];
+                        while (serialPort1.BytesToRead < 256) ;
+                        serialPort1.Read(t1, 0, 256);
+                        test += 256;
+                        DataBlockResived++;
+
+                        for (int i = 0; i < 256; i++)
+                            DataResived.Enqueue(t1[i]);
                     }
                     labelSingal.ForeColor = Color.Gray;
                 }
@@ -309,132 +357,145 @@ namespace ZigbeeVoice
                     serialPort1.Close();
                     serialPort1.Open();
                 }
-                UARTSendCommend(0x02);
+                //if (Resiving)
+                //    UARTSendData();
                 serialPort1_DataReceived_UnfinishFlag = false;
-                if (serialPort1_DataReceived_UnfinishCount > 0)
+                if (serialPort1.BytesToRead >= 9)
                 {
-                    serialPort1_DataReceived_UnfinishCount--;
                     serialPort1_DataReceived(sender, e);
                 }
             }
-            else serialPort1_DataReceived_UnfinishCount++;
         }
+
         Queue<byte> DataResived = new Queue<byte>();
         int DataBlockResived = 0;
-        private void ReadData()
-        {
-            byte[] t = new byte[520];
-            while (serialPort1.BytesToRead < 256) ;
-            serialPort1.Read(t, 0, 256);
-            DataBlockResived++;
-
-            for (int i = 0; i < 256; i++)
-                DataResived.Enqueue(t[i]);
-
-            while (serialPort1.BytesToRead < 256) ;
-            serialPort1.Read(t, 0, 256);
-            DataBlockResived++;
-
-            for (int i = 0; i < 256; i++)
-                DataResived.Enqueue(t[i]);
-            //Fs.Write(t, 0, 256);            
-        }
-        bool Recording = false;
         FileStream Fs;
-        int RecordQueueStatu = 0, PlayQueueStatu = 0;
-        int SystemStatu = 0;
-        private void ReadStatu()
+        private void StartResiving()
         {
-            byte[] t = new byte[5];
-            serialPort1.Read(t, 0, 5);
-            RecordQueueStatu = t[0] * 256 + t[1];
-            PlayQueueStatu = t[2] * 256 + t[3];
-            SystemStatu = t[4];
-            if (SystemStatu == 2 && RecordQueueStatu >= 512)    //读取音频数据
+            if (!Resiving)
             {
-                if (Recording == false)
-                {
-                    Recording = true;
-                    Fs = new FileStream("Resived/" + GetFileName("Resived") + ".midi", FileMode.Create, FileAccess.ReadWrite, FileShare.Read);
-                    //Fs.Write(header, 0, 60);
-                }
-                UARTSendCommend(0x03);
+                Resiving = true;
+                serialPort1.ReceivedBytesThreshold = 265;
+                Fs = new FileStream("Resived/" + GetFileName("Resived") + ".midi", FileMode.Create, FileAccess.ReadWrite, FileShare.Read);
             }
-            else if (SystemStatu == 1 && PlayQueueStatu <= 768)
+        }
+        private void StopResiving()
+        {
+            if (!Resiving)
+                return;            
+            Resiving = false;    
+            serialPort1.ReceivedBytesThreshold = 9;
+            byte[] t1 = new byte[4];
+            int temp = 0;
+            if (Fs == null || Fs.CanWrite == false)
+                Fs = new FileStream("Resived/" + GetFileName("Resived") + ".midi", FileMode.Create, FileAccess.ReadWrite, FileShare.Read);
+            Fs.Write(header, 0, 60);
+            byte[] t2 = new byte[260];
+            for (int i = 0; i < DataBlockResived; i++)
             {
-                byte[] a = new byte[330];
-                a[0] = 0x14; a[1] = 0x72; a[2] = 0x58; a[3] = 0x36; a[4] = 0x94;
+                for (int j = 0; j < 256; j++)
+                {
+                    t2[j] = DataResived.Dequeue();
+                }
+                Fs.Write(t2, 0, 256);
+            }
+
+            Fs.Seek(4, SeekOrigin.Begin);
+            temp = DataBlockResived * 256 + 52;
+            t1[0] = (byte)(temp & 0xff);
+            temp >>= 8;
+            t1[1] = (byte)(temp & 0xff);
+            temp >>= 8;
+            t1[2] = (byte)(temp & 0xff);
+            temp >>= 8;
+            t1[3] = (byte)(temp & 0xff);
+            Fs.Write(t1, 0, 4);
+
+            Fs.Seek(48, SeekOrigin.Begin);
+            temp = DataBlockResived * 505;
+            t1[0] = (byte)(temp & 0xff);
+            temp >>= 8;
+            t1[1] = (byte)(temp & 0xff);
+            temp >>= 8;
+            t1[2] = (byte)(temp & 0xff);
+            temp >>= 8;
+            t1[3] = (byte)(temp & 0xff);
+            Fs.Write(t1, 0, 4);
+
+            Fs.Seek(56, SeekOrigin.Begin);
+            temp = DataBlockResived * 256;
+            t1[0] = (byte)(temp & 0xff);
+            temp >>= 8;
+            t1[1] = (byte)(temp & 0xff);
+            temp >>= 8;
+            t1[2] = (byte)(temp & 0xff);
+            temp >>= 8;
+            t1[3] = (byte)(temp & 0xff);
+            Fs.Write(t1, 0, 4);
+
+            DataBlockResived = 0;
+            Fs.Close();
+            MessageBox.Show(test.ToString());
+        }
+
+        bool SendingStart = false;
+        bool SendingStop = false;
+        bool Sending = false;
+        bool Resiving = false;
+        bool C51SystemReset = false;
+        Queue<byte> DataRecorded = new Queue<byte>();
+        private void UARTSendData()
+        {
+            byte[] temp = new byte[330];
+            int lenth = 0;
+            temp[0] = 0x14; temp[1] = 0x72; temp[2] = 0x58; temp[3] = 0x36; temp[4] = 0x90;
+            if (SendingStart)
+            {
+                temp[5] = 0x01;
+                SendingStart = false;
+            }
+            else if (SendingStop)
+            {
+                temp[5] = 0x03;
+                SendingStop = false;
+            }
+            else if (Sending)
+                temp[5] = 0x02;
+            else if (Resiving)
+                temp[5] = 0x10;
+            else if (C51SystemReset)
+            {
+                temp[5] = 0x99;
+                C51SystemReset = false;
+            }
+            else temp[5] = 0x00;
+
+            if (Sending && C51PlayQueueStatu < 3)
+            {
+                temp[6] = 0x01;
+                for (int i = 0; i < 256; i++)
+                    temp[i + 5] = DataRecorded.Dequeue();
+                lenth = 256 + 7;
             }
             else
             {
-                if (SystemStatu == 0 && Recording == true)
-                {
-                    byte[] t1 = new byte[4];
-                    int temp = 0;
-                    Recording = false;
-                    Fs.Write(header, 0, 60);
-                    byte[] t2 = new byte[260];
-                    for (int i = 0; i < DataBlockResived; i++)
-                    {
-                        for (int j = 0; j < 256; j++)
-                        {
-                            t2[j] = DataResived.Dequeue();
-                        }
-                        Fs.Write(t2, 0, 256);
-                    }
-
-                    Fs.Seek(4, SeekOrigin.Begin);
-                    temp = DataBlockResived * 256 + 52;
-                    t1[0] = (byte)(temp & 0xff);
-                    temp >>= 8;
-                    t1[1] = (byte)(temp & 0xff);
-                    temp >>= 8;
-                    t1[2] = (byte)(temp & 0xff);
-                    temp >>= 8;
-                    t1[3] = (byte)(temp & 0xff);
-                    Fs.Write(t1, 0, 4);
-
-                    Fs.Seek(48, SeekOrigin.Begin);
-                    temp = DataBlockResived * 505;
-                    t1[0] = (byte)(temp & 0xff);
-                    temp >>= 8;
-                    t1[1] = (byte)(temp & 0xff);
-                    temp >>= 8;
-                    t1[2] = (byte)(temp & 0xff);
-                    temp >>= 8;
-                    t1[3] = (byte)(temp & 0xff);
-                    Fs.Write(t1, 0, 4);
-
-                    Fs.Seek(56, SeekOrigin.Begin);
-                    temp = DataBlockResived * 256;
-                    t1[0] = (byte)(temp & 0xff);
-                    temp >>= 8;
-                    t1[1] = (byte)(temp & 0xff);
-                    temp >>= 8;
-                    t1[2] = (byte)(temp & 0xff);
-                    temp >>= 8;
-                    t1[3] = (byte)(temp & 0xff);
-                    Fs.Write(t1, 0, 4);
-
-                    DataBlockResived = 0;
-                    Fs.Close();
-                }
+                temp[6] = 0x00;
+                lenth = 7;
             }
+
+            UARTSendData1(temp, 0, lenth);
+
         }
-        private void UARTSendCommend(byte commend)
+        private void UARTSendData1(byte[] dat, int offset, int count)
         {
-            byte[] a = { 0x14, 0x72, 0x58, 0x36, 0x90 };
-            a[4] |= commend;
             try
             {
-                while (serialPort1.BytesToWrite > 0) ;
-                serialPort1.Write(a, 0, 5);
+                serialPort1.Write(dat, offset, count);
             }
             catch (Exception)
             {
-                UARTSendCommend(commend);
+                UARTSendData1(dat, offset, count);
             }
-
         }
         byte[] header = {
 0x52, 0x49, 0x46, 0x46, 0xFF, 0xFF, 0xFF, 0xFF,
