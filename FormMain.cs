@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Threading;
 
 namespace ZigbeeVoice
 {
@@ -37,17 +38,20 @@ namespace ZigbeeVoice
             recorder.wavePlayer_Self.Volume = VolumeSelf;
             player.wavePlayer.Volume = Volume;
             GetFileList(1);
-            GetFileList(2);
+            GetFileList(2);           
         }
         private void StopSend()
         {
             recorder.StopRecord();
             FrazeSend();
             GC.Collect();
-            listBoxLog.Items.Add("发送时间：" + DateTime.Now.ToLongTimeString() + "  " + "时长：" + SendTime);
+            listBoxLog.Items.Add("发送时间：" + DateTime.Now.ToLongTimeString() + "  " + "时长：" + SendTime.ToString() + "秒" + Environment.NewLine + "已保存在/send/" + soundfile + ".wav");
+            listBoxVoiceSend.Items.Add(soundfile + ".wav");
             timerSend.Stop();
             SendTime = 0;
             SendingStop = true;
+            Sending = false;
+            timerMain.Interval = 20;
         }
         public static string GetFileName(string folder)
         {
@@ -56,26 +60,28 @@ namespace ZigbeeVoice
             string FileName = DateTime.Now.ToShortDateString().Replace('/', '-') + ' ';
             FileName += DateTime.Now.ToLongTimeString().Replace(':', '-');
             int i = 1;
-            if (File.Exists(folder + "/" + FileName + ".midi"))
+            if (File.Exists(folder + "/" + FileName + ".midi") || File.Exists(folder + "/" + FileName + ".wav"))
             {
-                while (File.Exists(folder + "/" + FileName + "-" + i.ToString() + ".midi")) ;
+                while (File.Exists(folder + "/" + FileName + "-" + i.ToString() + ".midi") || File.Exists(folder + "/" + FileName + "-" + i.ToString() + ".wav")) i++;
                 FileName += "-" + i.ToString();
             }
             return FileName;
         }
+        string soundfile;
         private void StartSend()
         {
             recorder = new Recorder();
             player.wavePlayer.Volume = Volume;
             recorder.wavePlayer_Self.Volume = VolumeSelf;
             recorder.ListenSelf = ListenSelf;
-            string soundfile = GetFileName("Send");
+            soundfile = GetFileName("Send");
             recorder.BeginRecord("Send/" + soundfile + ".wav");
-            listBoxVoiceSend.Items.Add(soundfile + ".wav");
             timerSend.Enabled = true;
             timerSend.Start();
             buttonSend.Text = "稍等一秒";
             SendingStart = true;
+            Sending = true;
+            timerMain.Interval = 3;
         }
 
         private void GetFileList(int inf)
@@ -116,17 +122,32 @@ namespace ZigbeeVoice
             {
                 StartSend();
                 buttonSend.Enabled = false;
+                checkBoxListenSelf.Enabled = false;
             }
             else
             {
                 StopSend();
+                checkBoxListenSelf.Enabled = true;
             }
         }
 
         private void checkBoxListenSelf_CheckedChanged(object sender, EventArgs e)
         {
             ListenSelf = checkBoxListenSelf.Checked;
-            recorder.ListenSelf = ListenSelf;
+            if (ListenSelf)
+            {
+                recorder.ListenSelf = ListenSelf;
+                buttonSend.Enabled = false;
+                checkBoxAutoSend.Enabled = false;
+                recorder.BeginRecord("");
+            }
+            else
+            {
+                recorder.StopRecord();
+                recorder.ListenSelf = ListenSelf;
+                buttonSend.Enabled = true;
+                checkBoxAutoSend.Enabled = true;
+            }
         }
 
         private void trackBarVoiceValueSelf_Scroll(object sender, EventArgs e)
@@ -237,7 +258,7 @@ namespace ZigbeeVoice
         {
             if (buttonConnect.BackColor == Color.Red)
             {
-                serialPort1.PortName = "COM" + comboBoxCOM.Text;
+                serialPort1.PortName = comboBoxCOM.Text;
                 try
                 {
                     serialPort1.Open();
@@ -262,10 +283,11 @@ namespace ZigbeeVoice
                 Sending = false;
                 Resiving = false;
                 C51SystemReset = false;
-                DataRecorded.Clear();
 
                 timerMain.Enabled = true;
                 timerMain.Start();
+                buttonSend.Enabled = true;
+                checkBoxAutoSend.Enabled = true;
             }
             else
             {
@@ -275,15 +297,21 @@ namespace ZigbeeVoice
                 labelStatu.ForeColor = Color.Red;
                 timerMain.Enabled = false;
                 timerMain.Stop();
+                buttonSend.Enabled = false;
+                checkBoxAutoSend.Enabled = false;
             }
         }
         int ms5000 = 0;
         private void timerMain_Tick(object sender, EventArgs e)
         {
             timerMain.Stop();
-            if (!Resiving)
-                UARTSendData();
             WorkOnDataResived();
+            if (!Resiving)
+            {
+                labelSingal.ForeColor = Color.Blue;
+                UARTSendData();
+                labelSingal.ForeColor = Color.Gray;
+            }
             timerMain.Start();
             ms5000 += timerMain.Interval;
             if (ms5000 > 1000 && Resiving)
@@ -294,7 +322,7 @@ namespace ZigbeeVoice
                 if (ms5000 > 1000 && Resiving)
                     StopResiving();
             }
-                
+
             if (ms5000 >= 5000)
             {
                 ms5000 = 0;
@@ -303,6 +331,8 @@ namespace ZigbeeVoice
                 buttonConnect.BackColor = Color.Red;
                 timerMain.Enabled = false;
                 timerMain.Stop();
+                buttonSend.Enabled = false;
+                checkBoxAutoSend.Enabled = false;
             }
         }
         int C51PlayQueueStatu = 0;
@@ -323,14 +353,14 @@ namespace ZigbeeVoice
                 ms5000 = 0;
 
             }
-            catch(Exception)
+            catch (Exception)
             {
                 serialPort1.Close();
                 try
                 {
                     serialPort1.Open();
                 }
-                catch(Exception)
+                catch (Exception)
                 {
                     serialPort1.Open();
                 }
@@ -351,8 +381,10 @@ namespace ZigbeeVoice
                         t1[i] = SerialData.Dequeue();
                     DataBlockResived++;
 
-                    player.PlayResivedSound_AddData(t1, 0, 256);
-                    Fs.Write(t1, 0, 256);
+                    if (AutoPlayVoiceResived)
+                        player.PlayResivedSound_AddData(t1, 0, 256);
+                    if (AutoSaveVoiceResived)
+                        Fs.Write(t1, 0, 256);
                     FixFileHeader();
                     FlagPassHeader = false;
                     return;
@@ -388,8 +420,10 @@ namespace ZigbeeVoice
                         t1[i] = SerialData.Dequeue();
                     DataBlockResived++;
 
-                    player.PlayResivedSound_AddData(t1, 0, 256);
-                    Fs.Write(t1, 0, 256);
+                    if (AutoPlayVoiceResived)
+                        player.PlayResivedSound_AddData(t1, 0, 256);
+                    if (AutoSaveVoiceResived)
+                        Fs.Write(t1, 0, 256);
                     FixFileHeader();
                 }
                 else if (t[8] == 0x01 && SerialData.Count < 256)
@@ -401,22 +435,30 @@ namespace ZigbeeVoice
                 serialPort1.Close();
                 serialPort1.Open();
             }
-            //if (Resiving)
-            //    UARTSendData();
-        }       
+        }
         FileStream Fs;
         string ResivedFileName;
         private void StartResiving()
         {
             if (!Resiving)
             {
+                buttonSend.Enabled = false;
+                checkBoxAutoSend.Enabled = false;
+                checkBoxListenSelf.Enabled = false;
+                buttonPlay.Enabled = false;
+                buttonPlaySent.Enabled = false;
                 Resiving = true;
                 serialPort1.ReceivedBytesThreshold = 265;
-                ResivedFileName =  GetFileName("Resived") + ".midi";
-                Fs = new FileStream("Resived/" + ResivedFileName, FileMode.Create, FileAccess.ReadWrite, FileShare.Read);
-                player.PlayResivedSound_Init();
-                player.PlayResivedSound_AddData(header, 0, 60);
-                Fs.Write(header, 0, 60);                
+                if (AutoSaveVoiceResived)
+                {
+                    ResivedFileName = GetFileName("Resived") + ".midi";
+                    Fs = new FileStream("Resived/" + ResivedFileName, FileMode.Create, FileAccess.ReadWrite, FileShare.Read);
+                    Fs.Write(header, 0, 60);
+                }
+                labelVoiceNo.Text = ResivedFileName.Split('.')[0];
+                labelVoiceTime.Text = DateTime.Now.ToShortDateString() + ' ' + DateTime.Now.ToLongTimeString();
+                if (AutoPlayVoiceResived)
+                    player.PlayResivedSound_AddData(header, 0, 60);
             }
         }
         int DataBlockResived = 0;
@@ -424,15 +466,30 @@ namespace ZigbeeVoice
         {
             if (!Resiving)
                 return;
+            buttonSend.Enabled = true;
+            checkBoxAutoSend.Enabled = true;
+            checkBoxListenSelf.Enabled = true;
+            buttonPlay.Enabled = true;
+            buttonPlaySent.Enabled = true;
+
             FlagPassHeader = false;
             Resiving = false;
             serialPort1.ReceivedBytesThreshold = 9;
-            listBoxVoice.Items.Add(ResivedFileName);
-            FixFileHeader();
+
+            string text = "接收时间：" + DateTime.Now.ToLongTimeString() + "  " + "时长：" + (DataBlockResived / 16).ToString() + "秒";
+            if (AutoSaveVoiceResived)
+            {
+                listBoxVoice.Items.Add(ResivedFileName);
+                FixFileHeader();
+                Fs.Close();
+                player.PlayResivedSound_Stop();
+                text += Environment.NewLine + "已保存在/resived/" + ResivedFileName;
+            }
+            listBoxLog.Items.Add(text);
+            labelVoiceTime.Text = "";
+            labelVoiceNo.Text = "";
 
             DataBlockResived = 0;
-            Fs.Close();
-            player.PlayResivedSound_Stop();
         }
         private void FixFileHeader()
         {
@@ -477,13 +534,13 @@ namespace ZigbeeVoice
         bool Sending = false;
         bool Resiving = false;
         bool C51SystemReset = false;
-        Queue<byte> DataRecorded = new Queue<byte>();
+
         private void UARTSendData()
         {
-            labelSingal.ForeColor = Color.Blue;
+
             byte[] temp = new byte[330];
-            int lenth = 0;
             temp[0] = 0x14; temp[1] = 0x72; temp[2] = 0x58; temp[3] = 0x36; temp[4] = 0x90;
+            temp[5] = 0x00;
             if (SendingStart)
             {
                 temp[5] = 0x01;
@@ -505,21 +562,22 @@ namespace ZigbeeVoice
             }
             else temp[5] = 0x00;
 
-            if (Sending && C51PlayQueueStatu < 3)
+            if (Sending && C51PlayQueueStatu <= 3 && recorder.DataRecordedQueue.Count >= 256)
             {
                 temp[6] = 0x01;
-                for (int i = 0; i < 256; i++)
-                    temp[i + 5] = DataRecorded.Dequeue();
-                lenth = 256 + 7;
+                while (recorder.DataRecordedQueue.Count > 256)
+                {
+                    Thread.Sleep(7);
+                    for (int i = 0; i < 256; i++)
+                        temp[i + 7] = recorder.DataRecordedQueue.Dequeue();
+                    UARTSendData1(temp, 0, 256 + 7);
+                }
             }
             else
             {
                 temp[6] = 0x00;
-                lenth = 7;
+                UARTSendData1(temp, 0, 7);
             }
-
-            UARTSendData1(temp, 0, lenth);
-
         }
         private void UARTSendData1(byte[] dat, int offset, int count)
         {
@@ -551,6 +609,22 @@ namespace ZigbeeVoice
         private void checkBoxSaveVoice_CheckedChanged(object sender, EventArgs e)
         {
             AutoSaveVoiceResived = checkBoxSaveVoice.Checked;
+        }
+
+        private void buttonAutoGetSerialPortNames_Click(object sender, EventArgs e)
+        {
+            comboBoxCOM.Items.Clear();
+            comboBoxCOM.Items.AddRange(System.IO.Ports.SerialPort.GetPortNames());
+            if (comboBoxCOM.Items.Count == 0)
+                MessageBox.Show("没有找到串口，请检查设备连接！");
+            else if (comboBoxCOM.Items.Count != 1)
+                MessageBox.Show("当前系统存在多个串口，请自行选择。");
+            comboBoxCOM.SelectedIndex = 0;
+        }
+
+        private void FormMain_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            Directory.Delete("temp/", true);
         }
     }
 }

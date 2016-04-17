@@ -53,11 +53,6 @@ namespace ZigbeeVoice
         }
         public IWavePlayer wavePlayer_Resived = new WaveOut();
         private WaveStream reader_Resived;
-        private string filename_Resived;
-        public void PlayResivedSound_Init()
-        {
-
-        }
         private void WavePlayerOnPlaybackStopped_Resived(object sender, StoppedEventArgs stoppedEventArgs)
         {
             if (wavePlayer_Resived != null)
@@ -78,10 +73,17 @@ namespace ZigbeeVoice
             {
                 reader_Resived.Dispose();
             }
-            if (File.Exists(filename))
-                File.Delete(filename);
-            if (File.Exists(lastfilename))
-                File.Delete(lastfilename);
+            try
+            {
+                if (File.Exists(filename))
+                    File.Delete(filename);
+                if (File.Exists(lastfilename))
+                    File.Delete(lastfilename);
+            }
+            catch (Exception)
+            {
+
+            }
         }
         public void PlayResivedSound_Start(string filename)
         {
@@ -126,7 +128,7 @@ namespace ZigbeeVoice
                 fs.Write(FormMain.header, 0, 60);
                 fs.Write(samples, offset, count);
             }
-            if(wavePlayer_Resived_Buffer==1)
+            if (wavePlayer_Resived_Buffer == 1)
             {
                 fs.Write(samples, offset, count);
                 if (File.Exists(lastfilename))
@@ -143,80 +145,6 @@ namespace ZigbeeVoice
             }
             else fs.Write(samples, offset, count);
             wavePlayer_Resived_Buffer++;
-        }
-        //private static WaveFormat waveFormat = new WaveFormat(8000, 1);
-        //BufferedWaveProvider bufferedWaveProvider;
-        //WaveStream ws;
-        //IWavePlayer wavePlayer_Resived;       
-        //public void PlayResivedSound_Init()
-        //{
-        //    bufferedWaveProvider = new BufferedWaveProvider(waveFormat);
-        //    ws = new WaveProviderToWaveStream(bufferedWaveProvider);
-        //    ws = WaveFormatConversionStream.CreatePcmStream(ws);
-        //    wavePlayer_Resived = new WaveOut();
-        //    wavePlayer_Resived.Init(bufferedWaveProvider);
-        //}
-        //public void PlayResivedSound_Stop()
-        //{
-        //    wavePlayer_Resived.Stop();
-        //    wavePlayer_Resived.Dispose();
-        //    wavePlayer_Resived_Buffer = 0;
-        //}
-        //int wavePlayer_Resived_Buffer = 0;
-        //public void PlayResivedSound_AddData(byte[] samples, int offset, int count)
-        //{
-        //    bufferedWaveProvider.AddSamples(samples, offset, count);
-        //    if (wavePlayer_Resived_Buffer == 10)
-        //    {
-        //        wavePlayer_Resived.Play();
-        //        wavePlayer_Resived_Buffer++;
-        //    }
-        //    else wavePlayer_Resived_Buffer++;
-        //}
-        public class WaveProviderToWaveStream : WaveStream
-        {
-            private readonly IWaveProvider source;
-            private long position;
-
-            public WaveProviderToWaveStream(IWaveProvider source)
-            {
-                this.source = source;
-            }
-
-            public override WaveFormat WaveFormat
-            {
-                get { return source.WaveFormat; }
-            }
-
-            /// <summary>
-            /// Don't know the real length of the source, just return a big number
-            /// </summary>
-            public override long Length
-            {
-                get { return Int32.MaxValue; }
-            }
-
-            public override long Position
-            {
-                get
-                {
-                    // we'll just return the number of bytes read so far
-                    return position;
-                }
-                set
-                {
-                    // can't set position on the source
-                    // n.b. could alternatively ignore this
-                    throw new NotImplementedException();
-                }
-            }
-
-            public override int Read(byte[] buffer, int offset, int count)
-            {
-                int read = source.Read(buffer, offset, count);
-                position += read;
-                return read;
-            }
         }
     }
 }
