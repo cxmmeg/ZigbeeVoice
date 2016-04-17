@@ -486,6 +486,7 @@
             this.checkBoxAutoPlay.TabIndex = 2;
             this.checkBoxAutoPlay.Text = "自动播放接收到的语音";
             this.checkBoxAutoPlay.UseVisualStyleBackColor = true;
+            this.checkBoxAutoPlay.CheckedChanged += new System.EventHandler(this.checkBoxAutoPlay_CheckedChanged);
             // 
             // checkBoxSaveVoice
             // 
@@ -498,6 +499,7 @@
             this.checkBoxSaveVoice.TabIndex = 7;
             this.checkBoxSaveVoice.Text = "自动保存接收到的语音";
             this.checkBoxSaveVoice.UseVisualStyleBackColor = true;
+            this.checkBoxSaveVoice.CheckedChanged += new System.EventHandler(this.checkBoxSaveVoice_CheckedChanged);
             // 
             // groupBox8
             // 
@@ -618,7 +620,7 @@
             // 
             // timerMain
             // 
-            this.timerMain.Interval = 50;
+            this.timerMain.Interval = 30;
             this.timerMain.Tick += new System.EventHandler(this.timerMain_Tick);
             // 
             // FormMain

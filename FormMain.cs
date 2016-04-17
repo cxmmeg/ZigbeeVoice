@@ -49,16 +49,16 @@ namespace ZigbeeVoice
             SendTime = 0;
             SendingStop = true;
         }
-        private string GetFileName(string folder)
+        public static string GetFileName(string folder)
         {
             if (!Directory.Exists(folder))
                 Directory.CreateDirectory(folder);
             string FileName = DateTime.Now.ToShortDateString().Replace('/', '-') + ' ';
             FileName += DateTime.Now.ToLongTimeString().Replace(':', '-');
             int i = 1;
-            if (File.Exists(folder + "/" + FileName + folder))
+            if (File.Exists(folder + "/" + FileName + ".midi"))
             {
-                while (File.Exists(folder + "/" + FileName + "-" + i.ToString() + ".wav")) ;
+                while (File.Exists(folder + "/" + FileName + "-" + i.ToString() + ".midi")) ;
                 FileName += "-" + i.ToString();
             }
             return FileName;
@@ -88,13 +88,20 @@ namespace ZigbeeVoice
             }
             else if (inf == 2)
             {
-                folderName = "Get";
+                folderName = "Resived";
                 listBoxVoice.Items.Clear();
             }
             if (!Directory.Exists(folderName))
                 return;
             DirectoryInfo folder = new DirectoryInfo(folderName);
 
+            foreach (FileInfo file in folder.GetFiles("*.midi"))
+            {
+                if (inf == 1)
+                    listBoxVoiceSend.Items.Add(file.Name);
+                else
+                    listBoxVoice.Items.Add(file.Name);
+            }
             foreach (FileInfo file in folder.GetFiles("*.wav"))
             {
                 if (inf == 1)
@@ -147,7 +154,7 @@ namespace ZigbeeVoice
             if (listBoxVoice.SelectedItem == null)
                 return;
             string filename = listBoxVoice.GetItemText(listBoxVoice.SelectedItem);
-            player.play_sound("Get/" + filename);
+            player.play_sound("Resived/" + filename);
         }
 
         private void buttonDeleteSent_Click(object sender, EventArgs e)
@@ -165,7 +172,7 @@ namespace ZigbeeVoice
                 return;
             string filename = listBoxVoice.GetItemText(listBoxVoice.SelectedItem);
             listBoxVoice.Items.Remove(listBoxVoice.SelectedItem);
-            File.Delete("Get/" + filename);
+            File.Delete("Resived/" + filename);
         }
 
         private void checkBoxSlience_CheckedChanged(object sender, EventArgs e)
@@ -247,8 +254,6 @@ namespace ZigbeeVoice
                 ms5000 = 0;
                 C51PlayQueueStatu = 0;
                 C51RecordQueueStatu = 0;
-                serialPort1_DataReceived_UnfinishFlag = false;
-                DataResived.Clear();
                 DataBlockResived = 0;
                 if (Fs != null)
                     Fs.Close();
@@ -278,10 +283,18 @@ namespace ZigbeeVoice
             timerMain.Stop();
             if (!Resiving)
                 UARTSendData();
+            WorkOnDataResived();
             timerMain.Start();
             ms5000 += timerMain.Interval;
             if (ms5000 > 1000 && Resiving)
+            {
                 StopResiving();
+                while (SerialData.Count >= 9)
+                    WorkOnDataResived();
+                if (ms5000 > 1000 && Resiving)
+                    StopResiving();
+            }
+                
             if (ms5000 >= 5000)
             {
                 ms5000 = 0;
@@ -292,114 +305,139 @@ namespace ZigbeeVoice
                 timerMain.Stop();
             }
         }
-        int test = 0;
         int C51PlayQueueStatu = 0;
         int C51RecordQueueStatu = 0;
-        bool serialPort1_DataReceived_UnfinishFlag = false;
+        Queue<byte> SerialData = new Queue<byte>(100000);
         private void serialPort1_DataReceived(object sender, System.IO.Ports.SerialDataReceivedEventArgs e)
         {
-            byte[] t = new byte[50];
-            if (!serialPort1_DataReceived_UnfinishFlag)
+            int a;
+            byte[] t = new byte[100000];
+            try
             {
-                serialPort1_DataReceived_UnfinishFlag = true;
-                serialPort1.Read(t, 0, 9);
-                test += 9;
-                if (t[0] == 0x96 && t[1] == 0x38 && t[2] == 0x52 && t[3] == 0x74 && t[4] == 0x10)
+                a = serialPort1.BytesToRead;
+                serialPort1.Read(t, 0, a);
+                for (int i = 0; i < a; i++)
                 {
-                    C51PlayQueueStatu = t[5];
-                    C51RecordQueueStatu = t[6];
-                    labelSingal.ForeColor = Color.Blue;
-                    labelStatu.ForeColor = Color.Green;
-                    switch (t[7])
-                    {
-                        case (0x00): ms5000 = 0; if (Resiving) StopResiving(); break;   //系统空闲
-                        case (0x10): ms5000 = 0; break;                                 //正在播放
-                        case (0x01): ms5000 = 0; StartResiving(); break;                //录音开始
-                        case (0x02): ms5000 = 0; if (!Resiving) StartResiving(); break;  //正在录音
-                        case (0x03): ms5000 = 0; StopResiving(); break;                 //录音结束
-                        default: break;
-                    }
-                    if (t[8] == 0x02)
-                    {
-                        byte[] t1 = new byte[520];
-                        while (serialPort1.BytesToRead < 256) ;
-                        serialPort1.Read(t1, 0, 256);
-                        test += 256;
-                        DataBlockResived++;
-
-                        for (int i = 0; i < 256; i++)
-                            DataResived.Enqueue(t1[i]);
-
-                        while (serialPort1.BytesToRead < 256) ;
-                        serialPort1.Read(t1, 0, 256);
-                        test += 256;
-                        DataBlockResived++;
-
-                        for (int i = 0; i < 256; i++)
-                            DataResived.Enqueue(t1[i]);
-                        //Fs.Write(t, 0, 256);            
-                    }
-                    else if (t[8] == 0x01)
-                    {
-                        byte[] t1 = new byte[520];
-                        while (serialPort1.BytesToRead < 256) ;
-                        serialPort1.Read(t1, 0, 256);
-                        test += 256;
-                        DataBlockResived++;
-
-                        for (int i = 0; i < 256; i++)
-                            DataResived.Enqueue(t1[i]);
-                    }
-                    labelSingal.ForeColor = Color.Gray;
+                    SerialData.Enqueue(t[i]);
                 }
-                else
+                ms5000 = 0;
+
+            }
+            catch(Exception)
+            {
+                serialPort1.Close();
+                try
                 {
-                    serialPort1.Close();
                     serialPort1.Open();
                 }
-                //if (Resiving)
-                //    UARTSendData();
-                serialPort1_DataReceived_UnfinishFlag = false;
-                if (serialPort1.BytesToRead >= 9)
+                catch(Exception)
                 {
-                    serialPort1_DataReceived(sender, e);
+                    serialPort1.Open();
                 }
             }
         }
+        bool FlagPassHeader = false;
+        private void WorkOnDataResived()
+        {
+            byte[] t = new byte[50];
+            if (SerialData.Count < 9)
+                return;
+            if (FlagPassHeader)
+                if (SerialData.Count >= 256)
+                {
+                    byte[] t1 = new byte[520];
 
-        Queue<byte> DataResived = new Queue<byte>();
-        int DataBlockResived = 0;
+                    for (int i = 0; i < 256; i++)
+                        t1[i] = SerialData.Dequeue();
+                    DataBlockResived++;
+
+                    player.PlayResivedSound_AddData(t1, 0, 256);
+                    Fs.Write(t1, 0, 256);
+                    FixFileHeader();
+                    FlagPassHeader = false;
+                    return;
+                }
+                else
+                {
+                    FlagPassHeader = true;
+                    return;
+                }
+            for (int i = 0; i < 9; i++)
+                t[i] = SerialData.Dequeue();
+
+            if (t[0] == 0x96 && t[1] == 0x38 && t[2] == 0x52 && t[3] == 0x74 && t[4] == 0x10)
+            {
+                C51PlayQueueStatu = t[5];
+                C51RecordQueueStatu = t[6];
+                labelSingal.ForeColor = Color.Blue;
+                labelStatu.ForeColor = Color.Green;
+                switch (t[7])
+                {
+                    case (0x00): if (Resiving) StopResiving(); break;   //系统空闲
+                    case (0x10): break;                                 //正在播放
+                    case (0x01): StartResiving(); break;                //录音开始
+                    case (0x02): if (!Resiving) StartResiving(); break;  //正在录音
+                    case (0x03): StopResiving(); break;                 //录音结束
+                    default: break;
+                }
+                if (t[8] == 0x01 && SerialData.Count >= 256)
+                {
+                    byte[] t1 = new byte[520];
+
+                    for (int i = 0; i < 256; i++)
+                        t1[i] = SerialData.Dequeue();
+                    DataBlockResived++;
+
+                    player.PlayResivedSound_AddData(t1, 0, 256);
+                    Fs.Write(t1, 0, 256);
+                    FixFileHeader();
+                }
+                else if (t[8] == 0x01 && SerialData.Count < 256)
+                    FlagPassHeader = true;
+                labelSingal.ForeColor = Color.Gray;
+            }
+            else
+            {
+                serialPort1.Close();
+                serialPort1.Open();
+            }
+            //if (Resiving)
+            //    UARTSendData();
+        }       
         FileStream Fs;
+        string ResivedFileName;
         private void StartResiving()
         {
             if (!Resiving)
             {
                 Resiving = true;
                 serialPort1.ReceivedBytesThreshold = 265;
-                Fs = new FileStream("Resived/" + GetFileName("Resived") + ".midi", FileMode.Create, FileAccess.ReadWrite, FileShare.Read);
+                ResivedFileName =  GetFileName("Resived") + ".midi";
+                Fs = new FileStream("Resived/" + ResivedFileName, FileMode.Create, FileAccess.ReadWrite, FileShare.Read);
+                player.PlayResivedSound_Init();
+                player.PlayResivedSound_AddData(header, 0, 60);
+                Fs.Write(header, 0, 60);                
             }
         }
+        int DataBlockResived = 0;
         private void StopResiving()
         {
             if (!Resiving)
-                return;            
-            Resiving = false;    
+                return;
+            FlagPassHeader = false;
+            Resiving = false;
             serialPort1.ReceivedBytesThreshold = 9;
-            byte[] t1 = new byte[4];
-            int temp = 0;
-            if (Fs == null || Fs.CanWrite == false)
-                Fs = new FileStream("Resived/" + GetFileName("Resived") + ".midi", FileMode.Create, FileAccess.ReadWrite, FileShare.Read);
-            Fs.Write(header, 0, 60);
-            byte[] t2 = new byte[260];
-            for (int i = 0; i < DataBlockResived; i++)
-            {
-                for (int j = 0; j < 256; j++)
-                {
-                    t2[j] = DataResived.Dequeue();
-                }
-                Fs.Write(t2, 0, 256);
-            }
+            listBoxVoice.Items.Add(ResivedFileName);
+            FixFileHeader();
 
+            DataBlockResived = 0;
+            Fs.Close();
+            player.PlayResivedSound_Stop();
+        }
+        private void FixFileHeader()
+        {
+            int temp = 0;
+            byte[] t1 = new byte[4];
             Fs.Seek(4, SeekOrigin.Begin);
             temp = DataBlockResived * 256 + 52;
             t1[0] = (byte)(temp & 0xff);
@@ -432,12 +470,8 @@ namespace ZigbeeVoice
             temp >>= 8;
             t1[3] = (byte)(temp & 0xff);
             Fs.Write(t1, 0, 4);
-
-            DataBlockResived = 0;
-            Fs.Close();
-            MessageBox.Show(test.ToString());
+            Fs.Seek(0, SeekOrigin.End);
         }
-
         bool SendingStart = false;
         bool SendingStop = false;
         bool Sending = false;
@@ -446,6 +480,7 @@ namespace ZigbeeVoice
         Queue<byte> DataRecorded = new Queue<byte>();
         private void UARTSendData()
         {
+            labelSingal.ForeColor = Color.Blue;
             byte[] temp = new byte[330];
             int lenth = 0;
             temp[0] = 0x14; temp[1] = 0x72; temp[2] = 0x58; temp[3] = 0x36; temp[4] = 0x90;
@@ -497,15 +532,25 @@ namespace ZigbeeVoice
                 UARTSendData1(dat, offset, count);
             }
         }
-        byte[] header = {
-0x52, 0x49, 0x46, 0x46, 0xFF, 0xFF, 0xFF, 0xFF,
+        public static byte[] header = {
+0x52, 0x49, 0x46, 0x46, 0x34, 0x14, 0x00, 0x00,
 0x57, 0x41, 0x56, 0x45, 0x66, 0x6d, 0x74, 0x20, /*|RIFF....WAVEfmt |*/
 0x14, 0x00, 0x00, 0x00, 0x11, 0x00, 0x01, 0x00,
 0x40, 0x1f, 0x00, 0x00, 0xd7, 0x0f, 0x00, 0x00, /*|........@...OE...|*/
 0x00, 0x01, 0x04, 0x00, 0x02, 0x00, 0xf9, 0x01,
 0x66, 0x61, 0x63, 0x74, 0x04, 0x00, 0x00, 0x00, /*|......ù.fact....|*/
-0xFF, 0xFF, 0xFF, 0xFF, 0x64, 0x61, 0x74, 0x61,
-0xFF, 0xFF, 0xFF, 0xFF
+0x74, 0x27, 0x00, 0x00, 0x64, 0x61, 0x74, 0x61,
+0x00, 0x14, 0x00, 0x00
 };
+        bool AutoPlayVoiceResived = true;
+        private void checkBoxAutoPlay_CheckedChanged(object sender, EventArgs e)
+        {
+            AutoPlayVoiceResived = checkBoxAutoPlay.Checked;
+        }
+        bool AutoSaveVoiceResived = true;
+        private void checkBoxSaveVoice_CheckedChanged(object sender, EventArgs e)
+        {
+            AutoSaveVoiceResived = checkBoxSaveVoice.Checked;
+        }
     }
 }
