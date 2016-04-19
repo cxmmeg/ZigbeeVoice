@@ -5,9 +5,15 @@ using System.Text;
 using System.Threading.Tasks;
 using NAudio;
 using NAudio.Wave;
+using NAudio.MediaFoundation;
+using NAudio.FileFormats;
+using NAudio.SoundFont;
+using NAudio.Utils;
+using NAudio.Mixer;
 using NAudio.WindowsMediaFormat;
 using NAudio.CoreAudioApi;
 using System.IO;
+using System.Threading;
 
 namespace ZigbeeVoice
 {
@@ -60,7 +66,6 @@ namespace ZigbeeVoice
             waveIn.DataAvailable += OnDataAvailable;
         }
         string filename;
-        string lastfilename;
         public Queue<byte> DataRecordedQueue;
         private WaveFileWriter writer2;
         private void OnDataAvailable(object sender, WaveInEventArgs e)
@@ -77,14 +82,13 @@ namespace ZigbeeVoice
             }
             else
             {
-                lastfilename = filename;
-                filename = "temp/" + FormMain.GetFileName("temp") + ".midi";
+                filename = "temp/" + FormMain.GetFileName("temp") + ".wav";
                 writer2 = new WaveFileWriter(filename, waveIn.WaveFormat);
                 writer2.Write(e.Buffer, 0, e.BytesRecorded);
                 writer2.Dispose();
 
-                WaveFileReader reader = new WaveFileReader(filename);
-                WaveStream convertedStream = new WaveFormatConversionStream(new WaveFormat(8000, 8, 1), reader);
+                MediaFoundationReader reader = new MediaFoundationReader(filename);
+                WaveStream convertedStream = new WaveFormatConversionStream(new WaveFormat(6000, 8, 1), reader);
                 byte[] t = new byte[100000];
                 int lenth = (int)convertedStream.Length;
                 //WaveFileWriter.CreateWaveFile("1.wav", convertedStream);
@@ -97,7 +101,7 @@ namespace ZigbeeVoice
                 }
                 try
                 {
-                    File.Delete(lastfilename);
+                    File.Delete(filename);
                 }
                 catch (Exception) { }
 

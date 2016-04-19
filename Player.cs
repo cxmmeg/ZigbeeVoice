@@ -7,6 +7,7 @@ using NAudio.Wave;
 using NAudio.WindowsMediaFormat;
 using NAudio.CoreAudioApi;
 using System.IO;
+using System.Threading;
 
 namespace ZigbeeVoice
 {
@@ -33,6 +34,7 @@ namespace ZigbeeVoice
             }
             catch (Exception)
             {
+                wavePlayer = new WaveOut();
                 return;
             }
 
@@ -131,15 +133,19 @@ namespace ZigbeeVoice
             if (wavePlayer_Resived_Buffer == 1)
             {
                 fs.Write(samples, offset, count);
-                if (File.Exists(lastfilename))
-                    File.Delete(lastfilename);
+                try
+                {
+                    if (File.Exists(lastfilename))
+                        File.Delete(lastfilename);
+                }
+                catch (Exception) { }
             }
             else if (wavePlayer_Resived_Buffer == 10)
             {
                 wavePlayer_Resived_Buffer = -1;
                 fs.Write(samples, offset, count);
                 fs.Close();
-                if (wavePlayer_Resived.PlaybackState == PlaybackState.Playing)
+                if (wavePlayer_Resived != null && wavePlayer_Resived.PlaybackState == PlaybackState.Playing)
                     wavePlayer_Resived.Stop();
                 PlayResivedSound_Start(filename);
             }

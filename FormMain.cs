@@ -38,7 +38,7 @@ namespace ZigbeeVoice
             recorder.wavePlayer_Self.Volume = VolumeSelf;
             player.wavePlayer.Volume = Volume;
             GetFileList(1);
-            GetFileList(2);           
+            GetFileList(2);
         }
         private void StopSend()
         {
@@ -51,7 +51,7 @@ namespace ZigbeeVoice
             SendTime = 0;
             SendingStop = true;
             Sending = false;
-            timerMain.Interval = 20;
+            //timerMain.Interval = 20;
         }
         public static string GetFileName(string folder)
         {
@@ -81,7 +81,7 @@ namespace ZigbeeVoice
             buttonSend.Text = "稍等一秒";
             SendingStart = true;
             Sending = true;
-            timerMain.Interval = 3;
+            //timerMain.Interval = 3;
         }
 
         private void GetFileList(int inf)
@@ -258,6 +258,11 @@ namespace ZigbeeVoice
         {
             if (buttonConnect.BackColor == Color.Red)
             {
+                if(comboBoxCOM.Text.Equals(""))
+                {
+                    MessageBox.Show("请选择串口号。");
+                    return;
+                }
                 serialPort1.PortName = comboBoxCOM.Text;
                 try
                 {
@@ -565,13 +570,13 @@ namespace ZigbeeVoice
             if (Sending && C51PlayQueueStatu <= 3 && recorder.DataRecordedQueue.Count >= 256)
             {
                 temp[6] = 0x01;
-                while (recorder.DataRecordedQueue.Count > 256)
-                {
-                    Thread.Sleep(7);
+                //while (recorder.DataRecordedQueue.Count > 256)
+                //{
+                //    Thread.Sleep(60);
                     for (int i = 0; i < 256; i++)
                         temp[i + 7] = recorder.DataRecordedQueue.Dequeue();
                     UARTSendData1(temp, 0, 256 + 7);
-                }
+                //}
             }
             else
             {
@@ -583,6 +588,7 @@ namespace ZigbeeVoice
         {
             try
             {
+                while (serialPort1.BytesToWrite > 0) ;
                 serialPort1.Write(dat, offset, count);
             }
             catch (Exception)
@@ -624,7 +630,8 @@ namespace ZigbeeVoice
 
         private void FormMain_FormClosing(object sender, FormClosingEventArgs e)
         {
-            Directory.Delete("temp/", true);
+            if (Directory.Exists("temp/"))
+                Directory.Delete("temp/", true);
         }
     }
 }
