@@ -88,7 +88,7 @@ namespace ZigbeeVoice
                 writer2.Dispose();
 
                 MediaFoundationReader reader = new MediaFoundationReader(filename);
-                WaveStream convertedStream = new WaveFormatConversionStream(new WaveFormat(6000, 8, 1), reader);
+                WaveStream convertedStream = new WaveFormatConversionStream(new WaveFormat(4000, 8, 1), reader);
                 byte[] t = new byte[100000];
                 int lenth = (int)convertedStream.Length;
                 //WaveFileWriter.CreateWaveFile("1.wav", convertedStream);

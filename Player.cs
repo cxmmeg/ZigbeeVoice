@@ -63,11 +63,11 @@ namespace ZigbeeVoice
             }
         }
         public void PlayResivedSound_Stop()
-        {
-            wavePlayer_Resived.Stop();
+        {            
             wavePlayer_Resived_Buffer = 0;
             if (wavePlayer_Resived != null)
             {
+                wavePlayer_Resived.Stop();
                 wavePlayer_Resived.Dispose();
                 wavePlayer_Resived = null;
             }

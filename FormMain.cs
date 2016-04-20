@@ -311,7 +311,7 @@ namespace ZigbeeVoice
         {
             timerMain.Stop();
             WorkOnDataResived();
-            if (!Resiving)
+            //if (!Resiving)
             {
                 labelSingal.ForeColor = Color.Blue;
                 UARTSendData();
