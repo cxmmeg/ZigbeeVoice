@@ -86,26 +86,27 @@ namespace ZigbeeVoice
                 writer2 = new WaveFileWriter(filename, waveIn.WaveFormat);
                 writer2.Write(e.Buffer, 0, e.BytesRecorded);
                 writer2.Dispose();
-
-                MediaFoundationReader reader = new MediaFoundationReader(filename);
-                WaveStream convertedStream = new WaveFormatConversionStream(new WaveFormat(4000, 8, 1), reader);
-                byte[] t = new byte[100000];
-                int lenth = (int)convertedStream.Length;
-                //WaveFileWriter.CreateWaveFile("1.wav", convertedStream);
-                convertedStream.Read(t, 0, lenth);
-                convertedStream.Dispose();
-                reader.Dispose();
-                for (int i = 0; i < lenth; i++)
-                {
-                    DataRecordedQueue.Enqueue(t[i]);
-                }
                 try
                 {
+                    MediaFoundationReader reader = new MediaFoundationReader(filename);
+                    WaveStream convertedStream = new WaveFormatConversionStream(new WaveFormat(4000, 8, 1), reader);
+                    byte[] t = new byte[100000];
+                    int lenth = (int)convertedStream.Length;
+                    //WaveFileWriter.CreateWaveFile("1.wav", convertedStream);
+                    convertedStream.Read(t, 0, lenth);
+                    convertedStream.Dispose();
+                    reader.Dispose();
+                    for (int i = 0; i < lenth; i++)
+                    {
+                        DataRecordedQueue.Enqueue(t[i]);
+                    }
                     File.Delete(filename);
+                    writer.Write(e.Buffer, 0, e.BytesRecorded);
                 }
-                catch (Exception) { }
-
-                writer.Write(e.Buffer, 0, e.BytesRecorded);
+                catch (Exception)
+                {
+                    return;
+                }
             }
 
         }
