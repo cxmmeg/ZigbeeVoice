@@ -81,6 +81,7 @@ namespace ZigbeeVoice
             buttonSend.Text = "稍等一秒";
             SendingStart = true;
             Sending = true;
+            //timerMain.Interval = 3;
         }
 
         private void GetFileList(int inf)
@@ -295,12 +296,12 @@ namespace ZigbeeVoice
             }
             else
             {
-                timerMain.Stop();
                 serialPort1.Close();
                 buttonConnect.Text = "连接";
                 buttonConnect.BackColor = Color.Red;
                 labelStatu.ForeColor = Color.Red;
-                timerMain.Enabled = false;                
+                timerMain.Enabled = false;
+                timerMain.Stop();
                 buttonSend.Enabled = false;
                 checkBoxAutoSend.Enabled = false;
             }
@@ -310,14 +311,12 @@ namespace ZigbeeVoice
         {
             timerMain.Stop();
             WorkOnDataResived();
-
-            if (!Resiving)
+            //if (!Resiving)
             {
                 labelSingal.ForeColor = Color.Blue;
                 UARTSendData();
                 labelSingal.ForeColor = Color.Gray;
             }
-
             timerMain.Start();
             ms5000 += timerMain.Interval;
             if (ms5000 > 1000 && Resiving)
@@ -332,11 +331,11 @@ namespace ZigbeeVoice
             if (ms5000 >= 5000)
             {
                 ms5000 = 0;
-                timerMain.Stop();
                 serialPort1.Close();
                 buttonConnect.Text = "连接";
                 buttonConnect.BackColor = Color.Red;
-                timerMain.Enabled = false;              
+                timerMain.Enabled = false;
+                timerMain.Stop();
                 buttonSend.Enabled = false;
                 checkBoxAutoSend.Enabled = false;
             }
@@ -362,7 +361,6 @@ namespace ZigbeeVoice
             catch (Exception)
             {
                 serialPort1.Close();
-                Thread.Sleep(1);
                 try
                 {
                     serialPort1.Open();
@@ -572,10 +570,13 @@ namespace ZigbeeVoice
             if (Sending && C51PlayQueueStatu <= 3 && recorder.DataRecordedQueue.Count >= 256)
             {
                 temp[6] = 0x01;
-                for (int i = 0; i < 256; i++)
-                    temp[i + 7] = recorder.DataRecordedQueue.Dequeue();
-                UARTSendData1(temp, 0, 256 + 7);
-
+                //while (recorder.DataRecordedQueue.Count > 256)
+                //{
+                //    Thread.Sleep(60);
+                    for (int i = 0; i < 256; i++)
+                        temp[i + 7] = recorder.DataRecordedQueue.Dequeue();
+                    UARTSendData1(temp, 0, 256 + 7);
+                //}
             }
             else
             {
