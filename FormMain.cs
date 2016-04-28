@@ -46,7 +46,9 @@ namespace ZigbeeVoice
             FrazeSend();
             GC.Collect();
             listBoxLog.Items.Add("发送时间：" + DateTime.Now.ToLongTimeString() + "  " + "时长：" + SendTime.ToString() + "秒" + Environment.NewLine + "已保存在/send/" + soundfile + ".wav");
+            listBoxLog.SelectedIndex = listBoxLog.Items.Count - 1;
             listBoxVoiceSend.Items.Add(soundfile + ".wav");
+            listBoxVoiceSend.SelectedIndex = listBoxVoiceSend.Items.Count - 1;
             timerSend.Stop();
             SendTime = 0;
             SendingStop = true;
@@ -256,9 +258,11 @@ namespace ZigbeeVoice
 
         private void buttonConnect_Click(object sender, EventArgs e)
         {
+            if (serialPort1.IsOpen)
+                serialPort1.Close();
             if (buttonConnect.BackColor == Color.Red)
             {
-                if(comboBoxCOM.Text.Equals(""))
+                if (comboBoxCOM.Text.Equals(""))
                 {
                     MessageBox.Show("请选择串口号。");
                     return;
@@ -293,17 +297,21 @@ namespace ZigbeeVoice
                 timerMain.Start();
                 buttonSend.Enabled = true;
                 checkBoxAutoSend.Enabled = true;
+                listBoxLog.Items.Add("已连接：" + DateTime.Now.ToLongTimeString() + "，" + comboBoxCOM.Text);
+                listBoxLog.SelectedIndex = listBoxLog.Items.Count - 1;
             }
             else
             {
+                timerMain.Enabled = false;
+                timerMain.Stop();
                 serialPort1.Close();
                 buttonConnect.Text = "连接";
                 buttonConnect.BackColor = Color.Red;
                 labelStatu.ForeColor = Color.Red;
-                timerMain.Enabled = false;
-                timerMain.Stop();
                 buttonSend.Enabled = false;
                 checkBoxAutoSend.Enabled = false;
+                listBoxLog.Items.Add("已断开连接：" + DateTime.Now.ToLongTimeString() + "，" + comboBoxCOM.Text);
+                listBoxLog.SelectedIndex = listBoxLog.Items.Count - 1;
             }
         }
         int ms5000 = 0;
@@ -311,42 +319,43 @@ namespace ZigbeeVoice
         {
             timerMain.Stop();
             WorkOnDataResived();
-            //if (!Resiving)
-            {
-                labelSingal.ForeColor = Color.Blue;
-                UARTSendData();
-                labelSingal.ForeColor = Color.Gray;
-            }
-            timerMain.Start();
+
+            labelSingal.ForeColor = Color.Blue;
+            UARTSendData();
+            labelSingal.ForeColor = Color.Gray;
+
             ms5000 += timerMain.Interval;
             if (ms5000 > 1000 && Resiving)
             {
-                StopResiving();
                 while (SerialData.Count >= 9)
                     WorkOnDataResived();
                 if (ms5000 > 1000 && Resiving)
                     StopResiving();
             }
-
+            timerMain.Start();
             if (ms5000 >= 5000)
             {
                 ms5000 = 0;
+                timerMain.Enabled = false;
+                timerMain.Stop();
                 serialPort1.Close();
                 buttonConnect.Text = "连接";
                 buttonConnect.BackColor = Color.Red;
-                timerMain.Enabled = false;
-                timerMain.Stop();
                 buttonSend.Enabled = false;
                 checkBoxAutoSend.Enabled = false;
-            }
+                listBoxLog.Items.Add("连接超时：" + DateTime.Now.ToLongTimeString() + "，" + comboBoxCOM.Text);
+                listBoxLog.SelectedIndex = listBoxLog.Items.Count - 1;
+            }          
         }
         int C51PlayQueueStatu = 0;
         int C51RecordQueueStatu = 0;
         Queue<byte> SerialData = new Queue<byte>(100000);
         private void serialPort1_DataReceived(object sender, System.IO.Ports.SerialDataReceivedEventArgs e)
         {
-            int a;
+            int a = 0;
             byte[] t = new byte[100000];
+            if (!serialPort1.IsOpen)
+                return;
             try
             {
                 a = serialPort1.BytesToRead;
@@ -360,15 +369,20 @@ namespace ZigbeeVoice
             }
             catch (Exception)
             {
-                serialPort1.Close();
-                try
-                {
-                    serialPort1.Open();
-                }
-                catch (Exception)
-                {
-                    serialPort1.Open();
-                }
+                ReopenSerialPort();
+            }
+        }
+        private void ReopenSerialPort()
+        {
+            try
+            {
+                if (serialPort1.IsOpen)
+                    serialPort1.Close();
+                serialPort1.Open();
+            }
+            catch (Exception)
+            {
+                ReopenSerialPort();
             }
         }
         bool FlagPassHeader = false;
@@ -435,11 +449,6 @@ namespace ZigbeeVoice
                     FlagPassHeader = true;
                 labelSingal.ForeColor = Color.Gray;
             }
-            else
-            {
-                serialPort1.Close();
-                serialPort1.Open();
-            }
         }
         FileStream Fs;
         string ResivedFileName;
@@ -471,26 +480,30 @@ namespace ZigbeeVoice
         {
             if (!Resiving)
                 return;
-            buttonSend.Enabled = true;
-            checkBoxAutoSend.Enabled = true;
+            FrazeSend(6000);
             checkBoxListenSelf.Enabled = true;
             buttonPlay.Enabled = true;
             buttonPlaySent.Enabled = true;
 
             FlagPassHeader = false;
             Resiving = false;
+
+            SerialData.Clear();
             serialPort1.ReceivedBytesThreshold = 9;
 
             string text = "接收时间：" + DateTime.Now.ToLongTimeString() + "  " + "时长：" + (DataBlockResived / 16).ToString() + "秒";
             if (AutoSaveVoiceResived)
             {
                 listBoxVoice.Items.Add(ResivedFileName);
+                listBoxVoice.SelectedIndex = listBoxVoice.Items.Count - 1;
                 FixFileHeader();
                 Fs.Close();
-                player.PlayResivedSound_Stop();
                 text += Environment.NewLine + "已保存在/resived/" + ResivedFileName;
             }
+            if (AutoPlayVoiceResived)
+                player.PlayResivedSound_Stop();
             listBoxLog.Items.Add(text);
+            listBoxLog.SelectedIndex = listBoxLog.Items.Count - 1;
             labelVoiceTime.Text = "";
             labelVoiceNo.Text = "";
 
@@ -570,13 +583,11 @@ namespace ZigbeeVoice
             if (Sending && C51PlayQueueStatu <= 3 && recorder.DataRecordedQueue.Count >= 256)
             {
                 temp[6] = 0x01;
-                //while (recorder.DataRecordedQueue.Count > 256)
-                //{
-                //    Thread.Sleep(60);
-                    for (int i = 0; i < 256; i++)
-                        temp[i + 7] = recorder.DataRecordedQueue.Dequeue();
-                    UARTSendData1(temp, 0, 256 + 7);
-                //}
+
+                for (int i = 0; i < 256; i++)
+                    temp[i + 7] = recorder.DataRecordedQueue.Dequeue();
+                UARTSendData1(temp, 0, 256 + 7);
+
             }
             else
             {
@@ -586,9 +597,11 @@ namespace ZigbeeVoice
         }
         private void UARTSendData1(byte[] dat, int offset, int count)
         {
+            if (serialPort1.IsOpen == false)
+                ReopenSerialPort();
+            while (serialPort1.BytesToWrite > 0) ;
             try
-            {
-                while (serialPort1.BytesToWrite > 0) ;
+            {                
                 serialPort1.Write(dat, offset, count);
             }
             catch (Exception)
@@ -630,8 +643,12 @@ namespace ZigbeeVoice
 
         private void FormMain_FormClosing(object sender, FormClosingEventArgs e)
         {
-            if (Directory.Exists("temp/"))
-                Directory.Delete("temp/", true);
+            try
+            {
+                if (Directory.Exists("temp/"))
+                    Directory.Delete("temp/", true);
+            }
+            catch (Exception) { }
         }
     }
 }
