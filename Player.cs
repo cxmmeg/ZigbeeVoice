@@ -1,21 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using NAudio.Wave;
-using NAudio.WindowsMediaFormat;
-using NAudio.CoreAudioApi;
+﻿using NAudio.Wave;
+using System;
 using System.IO;
-using System.Threading;
-
+//这个是音频播放模块
 namespace ZigbeeVoice
 {
     class Player
     {
         public IWavePlayer wavePlayer = new WaveOut();
         private WaveStream reader;
-        //--------播放部分----------      
+        //播放记录的音频
         public void play_sound(string filename)
         {
             if (wavePlayer != null)
@@ -30,7 +23,6 @@ namespace ZigbeeVoice
             try
             {
                 reader = new MediaFoundationReader(filename, new MediaFoundationReader.MediaFoundationReaderSettings() { SingleReaderObject = true });
-                //if (filename.Split('.')[1].Equals("midi")) reader = WaveFormatConversionStream.CreatePcmStream(reader);
             }
             catch (Exception)
             {
@@ -53,28 +45,32 @@ namespace ZigbeeVoice
                 wavePlayer.Stop();
             }
         }
-        public IWavePlayer wavePlayer_Resived = new WaveOut();
-        private WaveStream reader_Resived;
-        private void WavePlayerOnPlaybackStopped_Resived(object sender, StoppedEventArgs stoppedEventArgs)
+        //播放收到的音频
+        public IWavePlayer wavePlayer_Received = new WaveOut();
+        private WaveStream reader_Received;
+        private void WavePlayerOnPlaybackStopped_Received(object sender, StoppedEventArgs stoppedEventArgs)
         {
-            if (wavePlayer_Resived != null)
+            if (wavePlayer_Received != null)
             {
-                wavePlayer_Resived.Stop();
+                wavePlayer_Received.Stop();
             }
         }
-        public void PlayResivedSound_Stop()
+        //停止播放处理函数
+        public void PlayReceivedSound_Stop()
         {            
-            wavePlayer_Resived_Buffer = 0;
-            if (wavePlayer_Resived != null)
+            //清空缓冲区，释放播放组件
+            wavePlayer_Received_Buffer = 0;
+            if (wavePlayer_Received != null)
             {
-                wavePlayer_Resived.Stop();
-                wavePlayer_Resived.Dispose();
-                wavePlayer_Resived = null;
+                wavePlayer_Received.Stop();
+                wavePlayer_Received.Dispose();
+                wavePlayer_Received = null;
             }
-            if (reader_Resived != null)
+            if (reader_Received != null)
             {
-                reader_Resived.Dispose();
+                reader_Received.Dispose();
             }
+            //删除临时文件
             try
             {
                 if (File.Exists(filename))
@@ -82,47 +78,47 @@ namespace ZigbeeVoice
                 if (File.Exists(lastfilename))
                     File.Delete(lastfilename);
             }
-            catch (Exception)
-            {
-
-            }
+            catch (Exception) { }
         }
-        public void PlayResivedSound_Start(string filename)
+        public void PlayReceivedSound_Start(string filename)
         {
-            if (wavePlayer_Resived != null)
+            if (wavePlayer_Received != null)
             {
-                wavePlayer_Resived.Dispose();
-                wavePlayer_Resived = null;
+                wavePlayer_Received.Dispose();
+                wavePlayer_Received = null;
             }
-            if (reader_Resived != null)
+            if (reader_Received != null)
             {
-                reader_Resived.Dispose();
+                reader_Received.Dispose();
             }
+            //读取临时文件
             try
             {
-                reader_Resived = new MediaFoundationReader(filename, new MediaFoundationReader.MediaFoundationReaderSettings() { SingleReaderObject = true });
-                //if (filename.Split('.')[1].Equals("midi")) reader = WaveFormatConversionStream.CreatePcmStream(reader);
+                reader_Received = new MediaFoundationReader(filename, new MediaFoundationReader.MediaFoundationReaderSettings() { SingleReaderObject = true });
             }
             catch (Exception)
             {
                 return;
             }
-
-            if (wavePlayer_Resived == null)
+            wavePlayer.Volume = 1;  //设置音量为最大
+            //创建播放控件
+            if (wavePlayer_Received == null)
             {
-                wavePlayer_Resived = new WaveOut();
-                wavePlayer_Resived.PlaybackStopped += WavePlayerOnPlaybackStopped_Resived;
-                wavePlayer_Resived.Init(reader_Resived);
+                wavePlayer_Received = new WaveOut();
+                wavePlayer_Received.PlaybackStopped += WavePlayerOnPlaybackStopped_Received;
+                wavePlayer_Received.Init(reader_Received);
             }
-            wavePlayer_Resived.Play();
+            wavePlayer_Received.Play();
         }
-        int wavePlayer_Resived_Buffer = 0;
+        int wavePlayer_Received_Buffer = 0;
         FileStream fs;
         string filename;
         string lastfilename;
-        public void PlayResivedSound_AddData(byte[] samples, int offset, int count)
+        //将接收到的音频写入临时文件
+        public void PlayReceivedSound_AddData(byte[] samples, int offset, int count)
         {
-            if (wavePlayer_Resived_Buffer == 0)
+            //新建临时文件
+            if (wavePlayer_Received_Buffer == 0)
             {
                 lastfilename = filename;
                 filename = "temp/" + FormMain.GetFileName("temp") + ".midi";
@@ -130,7 +126,8 @@ namespace ZigbeeVoice
                 fs.Write(FormMain.header, 0, 60);
                 fs.Write(samples, offset, count);
             }
-            if (wavePlayer_Resived_Buffer == 1)
+            //删除上次的临时文件
+            if (wavePlayer_Received_Buffer == 1)
             {
                 fs.Write(samples, offset, count);
                 try
@@ -140,17 +137,18 @@ namespace ZigbeeVoice
                 }
                 catch (Exception) { }
             }
-            else if (wavePlayer_Resived_Buffer == 10)
+            //播放本次的临时文件
+            else if (wavePlayer_Received_Buffer == 10)
             {
-                wavePlayer_Resived_Buffer = -1;
+                wavePlayer_Received_Buffer = -1;
                 fs.Write(samples, offset, count);
                 fs.Close();
-                if (wavePlayer_Resived != null && wavePlayer_Resived.PlaybackState == PlaybackState.Playing)
-                    wavePlayer_Resived.Stop();
-                PlayResivedSound_Start(filename);
+                if (wavePlayer_Received != null && wavePlayer_Received.PlaybackState == PlaybackState.Playing)
+                    wavePlayer_Received.Stop();
+                PlayReceivedSound_Start(filename);
             }
             else fs.Write(samples, offset, count);
-            wavePlayer_Resived_Buffer++;
+            wavePlayer_Received_Buffer++;
         }
     }
 }

@@ -1,20 +1,8 @@
-﻿using System;
+﻿using NAudio.Wave;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using NAudio;
-using NAudio.Wave;
-using NAudio.MediaFoundation;
-using NAudio.FileFormats;
-using NAudio.SoundFont;
-using NAudio.Utils;
-using NAudio.Mixer;
-using NAudio.WindowsMediaFormat;
-using NAudio.CoreAudioApi;
 using System.IO;
-using System.Threading;
-
+//这个部分是录音模块
 namespace ZigbeeVoice
 {
     class Recorder
@@ -23,9 +11,9 @@ namespace ZigbeeVoice
         private IWaveIn waveIn;
         private WaveFileWriter writer;
         public IWavePlayer wavePlayer_Self = new WaveOut();
-        private static WaveFormat waveFormat = new WaveFormat(8000, 8, 2);
+        private static WaveFormat waveFormat = new WaveFormat(8000, 8, 2);  //录音格式
         private BufferedWaveProvider bufferedWaveProvider;
-        //------------------录音相关-----------------------------
+
         //开始录音
         public void BeginRecord(string soundfile)
         {
@@ -59,6 +47,7 @@ namespace ZigbeeVoice
             if (writer != null)
                 writer.Dispose();
         }
+        //获取音频输入设备
         private void CreateWaveInDevice()
         {
             waveIn = new WaveIn();
@@ -66,11 +55,12 @@ namespace ZigbeeVoice
             waveIn.DataAvailable += OnDataAvailable;
         }
         string filename;
-        public Queue<byte> DataRecordedQueue;
+        public Queue<byte> DataRecordedQueue;   //录音缓冲区
         private WaveFileWriter writer2;
+        
         private void OnDataAvailable(object sender, WaveInEventArgs e)
         {
-            if (ListenSelf)
+            if (ListenSelf) //如果是测试模式，则播放获取到的音频
             {
                 bufferedWaveProvider.AddSamples(e.Buffer, 0, e.BytesRecorded);
                 if (wavePlayer_Self == null)
@@ -82,30 +72,33 @@ namespace ZigbeeVoice
             }
             else
             {
+                //否则写出到临时文件
                 filename = "temp/" + FormMain.GetFileName("temp") + ".wav";
                 writer2 = new WaveFileWriter(filename, waveIn.WaveFormat);
                 writer2.Write(e.Buffer, 0, e.BytesRecorded);
                 writer2.Dispose();
 
-                MediaFoundationReader reader = new MediaFoundationReader(filename);
-                WaveStream convertedStream = new WaveFormatConversionStream(new WaveFormat(4000, 8, 1), reader);
-                byte[] t = new byte[100000];
-                int lenth = (int)convertedStream.Length;
-                //WaveFileWriter.CreateWaveFile("1.wav", convertedStream);
-                convertedStream.Read(t, 0, lenth);
-                convertedStream.Dispose();
-                reader.Dispose();
-                for (int i = 0; i < lenth; i++)
-                {
-                    DataRecordedQueue.Enqueue(t[i]);
-                }
                 try
                 {
-                    File.Delete(filename);
-                }
-                catch (Exception) { }
+                    //转码
+                    MediaFoundationReader reader = new MediaFoundationReader(filename);
+                    WaveStream convertedStream = new WaveFormatConversionStream(new WaveFormat(4000, 8, 1), reader);
+                    byte[] t = new byte[100000];
+                    int lenth = (int)convertedStream.Length;
 
-                writer.Write(e.Buffer, 0, e.BytesRecorded);
+                    convertedStream.Read(t, 0, lenth);
+                    convertedStream.Dispose();
+                    reader.Dispose();
+                    //写入到录音缓冲区
+                    for (int i = 0; i < lenth; i++)
+                    {
+                        DataRecordedQueue.Enqueue(t[i]);
+                    }
+                    File.Delete(filename);
+                    //写入到音频记录文件
+                    writer.Write(e.Buffer, 0, e.BytesRecorded);
+                }
+                catch (Exception) { }               
             }
 
         }
